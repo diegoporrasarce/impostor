@@ -86,6 +86,16 @@
         <div class="card">
           <div class="card-row">
             <div>
+              <h3>Nombres</h3>
+              <p class="muted small" id="namesSummary">Jugador 1, Jugador 2…</p>
+            </div>
+            <button class="chip-btn" id="btnEditNames" type="button">Editar</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-row">
+            <div>
               <h3>Impostores</h3>
               <p class="muted small" id="impostorsNote">1 impostor</p>
             </div>
@@ -132,14 +142,6 @@
           </label>
 
           <label class="switch-row">
-            <span>
-              <strong>Orden de revelado aleatorio</strong>
-              <small class="muted">Nadie sabe a quién le toca después</small>
-            </span>
-            <input type="checkbox" id="optShuffle" class="switch" checked />
-          </label>
-
-          <label class="switch-row" id="rowTimer">
             <span>
               <strong>Temporizador de debate</strong>
               <small class="muted">Cuenta atrás para dar pistas</small>
@@ -327,6 +329,17 @@
     </section>
 
     <!-- ============================= MODALS ============================= -->
+    <div class="modal is-hidden" id="modalNames">
+      <div class="modal-card">
+        <h2>Nombres de los jugadores</h2>
+        <div class="modal-body">
+          <div class="name-list" id="nameList"></div>
+        </div>
+        <button class="btn btn-primary btn-block" id="btnSaveNames">Guardar nombres</button>
+        <button class="btn btn-ghost btn-block" id="btnCancelNames">Cancelar</button>
+      </div>
+    </div>
+
     <div class="modal is-hidden" id="modalRules">
       <div class="modal-card">
         <h2>Cómo jugar</h2>

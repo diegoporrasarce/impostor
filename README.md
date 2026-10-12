@@ -24,11 +24,13 @@ recibe una palabra distinta (o ninguna) y el resto tiene que descubrir quién es
 
 ### Extras
 
+- **Nombres de jugadores**: poned vuestros nombres reales.
 - 26 categorías temáticas + **categorías propias** ilimitadas.
-- 1 a 3 impostores según el número de jugadores.
+- De 1 hasta tantos impostores como jugadores haya.
 - Pista de categoría para el impostor (opcional).
 - Temporizador de debate con aviso sonoro.
 - Votación secreta pasando el móvil.
+- El móvil se pasa **en orden (1, 2, 3…)** para ver lo que te toca.
 - Instalable como app (PWA) y funciona sin conexión.
 
 ---

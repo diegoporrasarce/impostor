@@ -27,7 +27,25 @@
     var sec = s % 60;
     return m + ":" + (sec < 10 ? "0" : "") + sec;
   }
-  function maxImpostors(players) { return Math.min(3, Math.max(1, Math.floor((players - 1) / 2))); }
+  function maxImpostors(players) { return Math.max(1, players); }
+
+  /* ---------------- Nombres de los jugadores ---------------- */
+  function nameFor(p) {
+    var n = settings.names && settings.names[p - 1];
+    n = (n || "").trim();
+    return n || ("Jugador " + p);
+  }
+  function ensureNamesLength() {
+    if (!Array.isArray(settings.names)) settings.names = [];
+    while (settings.names.length < settings.players) settings.names.push("");
+  }
+  function updateNamesSummary() {
+    ensureNamesLength();
+    var parts = [];
+    for (var i = 1; i <= settings.players; i++) parts.push(nameFor(i));
+    var shown = parts.slice(0, 5).join(", ") + (parts.length > 5 ? " …" : "");
+    $("#namesSummary").textContent = shown;
+  }
 
   /* ---------------- Estado y persistencia ---------------- */
   var LS_SETTINGS = "impostor.settings.v1";
@@ -39,7 +57,7 @@
     mode: "classic",
     categories: null,        // null = todas
     hint: true,
-    shuffleReveal: true,
+    names: [],
     timer: true,
     timerSeconds: 120,
     vote: true,
@@ -195,10 +213,11 @@
     $("#impostorsPlus").disabled = settings.impostors >= max;
     $("#timerValue").textContent = formatTime(settings.timerSeconds);
     $("#timerRow").classList.toggle("is-hidden", !settings.timer);
+    ensureNamesLength();
+    updateNamesSummary();
   }
   function updateSwitchesUI() {
     $("#optHint").checked = settings.hint;
-    $("#optShuffle").checked = settings.shuffleReveal;
     $("#optTimer").checked = settings.timer;
     $("#optVote").checked = settings.vote;
     $("#optSound").checked = settings.sound;
@@ -259,7 +278,7 @@
       categoryName: categoryName,
       impostorSet: impostorSet,
       impostorList: impostorList,
-      revealOrder: settings.shuffleReveal ? shuffle(range(1, settings.players)) : range(1, settings.players),
+      revealOrder: range(1, settings.players),
       index: 0,
       votes: {},
       voteOrder: [],
@@ -277,7 +296,7 @@
   function renderHandoff() {
     $("#revealCard").classList.add("is-hidden");
     $("#revealHandoff").classList.remove("is-hidden");
-    $("#handoffName").textContent = "Jugador " + currentRevealPlayer();
+    $("#handoffName").textContent = nameFor(currentRevealPlayer());
     $("#revealProgress").textContent = (game.index + 1) + " de " + game.players;
   }
   function showCard() {
@@ -367,14 +386,13 @@
     if (timerHandle) { clearInterval(timerHandle); timerHandle = null; }
   }
   function goDiscussion() {
-    var order = shuffle(range(1, game.players));
     var ol = $("#speakOrder");
     ol.innerHTML = "";
-    order.forEach(function (p) {
+    for (var i = 1; i <= game.players; i++) {
       var li = document.createElement("li");
-      li.textContent = "Jugador " + p;
+      li.textContent = nameFor(i);
       ol.appendChild(li);
-    });
+    }
     var n = game.impostorList.length;
     $("#impostorInfoTitle").textContent = n === 1
       ? "Hay 1 impostor entre vosotros."
@@ -390,7 +408,7 @@
 
   /* ---------------- Votación ---------------- */
   function startVoting() {
-    game.voteOrder = shuffle(range(1, game.players));
+    game.voteOrder = range(1, game.players);
     game.voteIndex = 0;
     game.votes = {};
     game.selectedVote = null;
@@ -403,7 +421,7 @@
     var voter = game.voteOrder[game.voteIndex];
     game.selectedVote = null;
     $("#voteStep").textContent = "Votación " + (game.voteIndex + 1) + " de " + game.voteOrder.length;
-    $("#voteName").textContent = "Jugador " + voter;
+    $("#voteName").textContent = nameFor(voter);
     $("#voteQuestion").textContent = "¿Quién crees que es el impostor?";
     var grid = $("#voteGrid");
     grid.innerHTML = "";
@@ -413,7 +431,7 @@
         var b = document.createElement("button");
         b.type = "button";
         b.className = "vote-option";
-        b.textContent = "Jugador " + cand;
+        b.textContent = nameFor(cand);
         b.addEventListener("click", function () {
           $$(".vote-option").forEach(function (x) { x.classList.remove("is-selected"); });
           b.classList.add("is-selected");
@@ -444,7 +462,7 @@
     stopDiscussionTimer();
     var g = game;
     var impArr = g.impostorList.slice().sort(function (a, b) { return a - b; });
-    var impNames = impArr.map(function (p) { return "Jugador " + p; }).join(", ");
+    var impNames = impArr.map(function (p) { return nameFor(p); }).join(", ");
 
     $("#impostorCardLabel").textContent = impArr.length > 1 ? "Impostores" : "Impostor";
     $("#resultImpostors").textContent = impNames;
@@ -471,25 +489,25 @@
       var strong = document.createElement("strong");
       var summary = document.createElement("span");
       summary.className = "muted small";
-      summary.textContent = range(1, g.players).map(function (p) { return "J" + p + ": " + (t.counts[p] || 0); }).join("   ");
+      summary.textContent = range(1, g.players).map(function (p) { return nameFor(p) + ": " + (t.counts[p] || 0); }).join("   ");
 
       if (!t.accused) {
         emoji.textContent = "🤝";
         title.textContent = "Empate en la votación";
         sub.textContent = "No os pusisteis de acuerdo. ¡El impostor se salva!";
-        strong.textContent = "Empate entre: " + t.leaders.map(function (p) { return "Jugador " + p; }).join(", ") + ".";
+        strong.textContent = "Empate entre: " + t.leaders.map(function (p) { return nameFor(p); }).join(", ") + ".";
         voteBox.classList.add("bad");
       } else if (g.impostorSet[t.accused]) {
         emoji.textContent = "🎉";
         title.textContent = "¡Habéis pillado al impostor!";
-        sub.textContent = "Jugador " + t.accused + " era impostor. Gana el grupo.";
-        strong.textContent = "Más votado: Jugador " + t.accused + " con " + t.max + (t.max === 1 ? " voto." : " votos.");
+        sub.textContent = nameFor(t.accused) + " era impostor. Gana el grupo.";
+        strong.textContent = "Más votado: " + nameFor(t.accused) + " con " + t.max + (t.max === 1 ? " voto." : " votos.");
         voteBox.classList.add("good");
       } else {
         emoji.textContent = "😈";
         title.textContent = "¡Se han librado!";
-        sub.textContent = "Jugador " + t.accused + " era inocente. Gana el impostor.";
-        strong.textContent = "Más votado: Jugador " + t.accused + " con " + t.max + (t.max === 1 ? " voto." : " votos.");
+        sub.textContent = nameFor(t.accused) + " era inocente. Gana el impostor.";
+        strong.textContent = "Más votado: " + nameFor(t.accused) + " con " + t.max + (t.max === 1 ? " voto." : " votos.");
         voteBox.classList.add("bad");
       }
       voteBox.innerHTML = "";
@@ -568,6 +586,49 @@
     toast("Categoría borrada");
   }
 
+  /* ---------------- Nombres (modal) ---------------- */
+  var nameInputs = [];
+  function openNamesModal() {
+    ensureNamesLength();
+    renderNamesInputs();
+    $("#modalNames").classList.remove("is-hidden");
+  }
+  function renderNamesInputs() {
+    nameInputs = [];
+    var list = $("#nameList");
+    list.innerHTML = "";
+    for (var i = 1; i <= settings.players; i++) {
+      var row = document.createElement("label");
+      row.className = "name-row";
+      var idx = document.createElement("span");
+      idx.className = "name-index";
+      idx.textContent = String(i);
+      var inp = document.createElement("input");
+      inp.type = "text";
+      inp.className = "text-input";
+      inp.maxLength = 20;
+      inp.placeholder = "Jugador " + i;
+      inp.value = settings.names[i - 1] || "";
+      inp.setAttribute("data-index", String(i - 1));
+      row.appendChild(idx);
+      row.appendChild(inp);
+      list.appendChild(row);
+      nameInputs.push(inp);
+    }
+  }
+  function saveNames() {
+    ensureNamesLength();
+    nameInputs.forEach(function (inp) {
+      var i = parseInt(inp.getAttribute("data-index"), 10);
+      if (!isNaN(i)) settings.names[i] = (inp.value || "").trim();
+    });
+    saveSettings();
+    updateNamesSummary();
+    $("#modalNames").classList.add("is-hidden");
+    beep(700, 0.08);
+    toast("Nombres guardados");
+  }
+
   /* ---------------- Enlazado de eventos ---------------- */
   function bindSetup() {
     $("#playersMinus").addEventListener("click", function () {
@@ -596,7 +657,6 @@
     $("#selectAllCats").addEventListener("click", function () { settings.categories = null; saveSettings(); renderCategories(); });
     $("#selectNoneCats").addEventListener("click", function () { settings.categories = []; saveSettings(); renderCategories(); });
     $("#optHint").addEventListener("change", function () { settings.hint = this.checked; saveSettings(); });
-    $("#optShuffle").addEventListener("change", function () { settings.shuffleReveal = this.checked; saveSettings(); });
     $("#optTimer").addEventListener("change", function () { settings.timer = this.checked; saveSettings(); updateCountersUI(); });
     $("#optVote").addEventListener("change", function () { settings.vote = this.checked; saveSettings(); });
     $("#optSound").addEventListener("change", function () { settings.sound = this.checked; saveSettings(); });
@@ -673,6 +733,13 @@
     $("#btnAddCustom").addEventListener("click", addCustom);
   }
 
+  function bindNames() {
+    $("#btnEditNames").addEventListener("click", openNamesModal);
+    $("#btnSaveNames").addEventListener("click", saveNames);
+    $("#btnCancelNames").addEventListener("click", function () { $("#modalNames").classList.add("is-hidden"); });
+    $("#modalNames").addEventListener("click", function (e) { if (e.target === this) this.classList.add("is-hidden"); });
+  }
+
   /* ---------------- Service Worker (PWA) ---------------- */
   function setupServiceWorker() {
     if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return;
@@ -694,6 +761,7 @@
     bindVote();
     bindResult();
     bindCustom();
+    bindNames();
     renderCategories();
     renderCustom();
     updateSetupUI();

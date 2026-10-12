@@ -557,8 +557,20 @@ h3 { font-size: 1rem; font-weight: 700; }
 .custom-item-words { color: var(--muted); font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .custom-empty { color: var(--muted); font-size: 0.92rem; }
 
-/* ---------- MODAL ---------- */
-.modal {
+/* ---------- Nombres de jugadores ---------- */
+.name-list { display: flex; flex-direction: column; gap: 10px; }
+.name-row { display: flex; align-items: center; gap: 10px; }
+.name-index {
+  flex: 0 0 auto;
+  width: 24px;
+  text-align: center;
+  color: var(--muted);
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+.name-row .text-input { padding: 11px 12px; }
+
+/* ---------- MODAL ---------- */.modal {
   position: fixed;
   inset: 0;
   background: rgba(8, 6, 16, 0.72);
