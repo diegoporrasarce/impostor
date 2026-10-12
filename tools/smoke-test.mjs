@@ -94,12 +94,10 @@ while ((m = tagRe.exec(html))) {
   const id = (attrs.match(/\bid="([^"]*)"/) || [])[1];
   const cls = (attrs.match(/\bclass="([^"]*)"/) || [])[1];
   const db = (attrs.match(/\bdata-back="([^"]*)"/) || [])[1];
-  const dm = (attrs.match(/\bdata-mode="([^"]*)"/) || [])[1];
   const ds = (attrs.match(/\bdata-screen="([^"]*)"/) || [])[1];
   if (id) el.id = id;
   if (cls) el.className = cls;
   if (db) el.setAttribute("data-back", db);
-  if (dm) el.setAttribute("data-mode", dm);
   if (ds) el.setAttribute("data-screen", ds);
   if (/\bchecked\b/.test(attrs)) el.checked = true;
   ALL.push(el);
@@ -117,7 +115,7 @@ globalThis.confirm = () => true;
 /* cargar el juego */
 function run(rel) { new Function(read(rel))(); }
 run("js/words.js");
-run("js/pairs.js");
+run("js/clues.js");
 run("js/app.js");
 
 /* -------------------- utilidades de test -------------------- */
@@ -185,27 +183,18 @@ ok(new Set(civilWords).size === 1 && civilWords.length === 6, "los 6 civiles ven
 ok(activeScreen() === "discussion", "pasa al debate tras revelar a todos");
 ok(byId("speakOrder").children[0].textContent === "Marta", "el orden de palabra empieza por el jugador 1");
 
-click("btnToVote");
-ok(activeScreen() === "vote", "empieza la votación");
-ok(byId("voteName").textContent === "Marta", "la votación empieza por el jugador 1");
-for (let i = 0; i < 8; i++) {
-  const grid = byId("voteGrid");
-  ok(grid.children.length === 7, "el votante tiene 7 opciones (sin incluirse)");
-  if (i === 0) ok(grid.children[0].textContent === "Bruno", "las opciones usan nombres");
-  grid.children[0].dispatch("click");
-  click("voteConfirm");
-}
-ok(activeScreen() === "result", "tras votar todos, muestra el resultado");
+click("btnSolve");
+ok(activeScreen() === "result", "al revelar la solución muestra el resultado");
 ok(byId("resultWord").textContent === civilWords[0], "el resultado muestra la palabra correcta");
 ok(byId("resultImpostors").textContent.length > 0, "muestra el/los impostor(es)");
-ok(byId("decoyCard").classList.contains("is-hidden"), "sin tarjeta de señuelo en modo clásico");
+ok(byId("decoyCard").classList.contains("is-hidden"), "sin tarjeta de pista en modo clásico");
 
 /* -------------------- 4. Pista para el impostor -------------------- */
 console.log("\n— Pista para el impostor —");
 const hintSwitch = byId("optHint");
 hintSwitch.checked = true;
 hintSwitch.dispatch("change");
-ok(byId("categoriesCard").classList.contains("is-hidden"), "con pista se ocultan las categorías (se usan parejas)");
+ok(byId("catCount").textContent.indexOf("palabras") !== -1, "las categorías siguen activas con la pista");
 click("startGame");
 ok(activeScreen() === "reveal", "la partida con pista empieza el revelado");
 const words2 = [];
@@ -221,22 +210,29 @@ const civWords = words2.filter((w) => w !== "IMPOSTOR");
 ok(impWords.length === 2, "los 2 impostores ven IMPOSTOR");
 ok(new Set(civWords).size === 1 && civWords.length === 6, "los 6 civiles ven la misma palabra");
 const impHints = hints2.filter((h) => h.indexOf("Pista: ") === 0);
-ok(impHints.length === 2, "los impostores reciben una pista de palabra parecida");
+ok(impHints.length === 2, "los impostores reciben una pista");
 ok(impHints.every((h) => h !== "Pista: " + civWords[0]), "la pista es distinta de la palabra de los civiles");
-click("btnToResult");
-ok(activeScreen() === "result", "salta al resultado");
+click("btnSolve");
+ok(activeScreen() === "result", "pasa al resultado");
 ok(!byId("decoyCard").classList.contains("is-hidden"), "muestra la pista del impostor");
 ok(byId("resultDecoy").textContent.length > 0, "la pista del impostor no está vacía");
 
 hintSwitch.checked = false;
 hintSwitch.dispatch("change");
-ok(!byId("categoriesCard").classList.contains("is-hidden"), "sin pista vuelven a verse las categorías");
 
 /* -------------------- 5. Categorías -------------------- */
 console.log("\n— Categorías —");
+click("btnNewGame");
+ok(activeScreen() === "setup", "vuelve a los ajustes");
+click("btnCategories");
+ok(activeScreen() === "categories", "abre la pantalla de categorías");
 const chipCount = byId("categoriesGrid").children.length;
-ok(chipCount === 26, "el selector tiene las 26 categorías (" + chipCount + ")");
+ok(chipCount === 27, "el selector tiene 27 categorías (26 + Pistas) (" + chipCount + ")");
 ok(byId("catCount").textContent.indexOf("palabras") !== -1, "muestra el total de palabras seleccionadas");
+click("selectNoneCats");
+ok(byId("catCount").textContent.indexOf("0 palabras") !== -1, "con «Ninguna» quedan 0 palabras");
+click("selectAllCats");
+ok(byId("catCount").textContent.indexOf("Todas") !== -1, "con «Todas» vuelven a activarse");
 
 /* -------------------- 6. Persistencia -------------------- */
 console.log("\n— Persistencia —");

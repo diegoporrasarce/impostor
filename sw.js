@@ -1,13 +1,13 @@
 /* Service Worker · El Impostor
    Cambia VERSION al publicar cambios para refrescar la caché. */
-const VERSION = "v3";
+const VERSION = "v4";
 const CACHE = "impostor-" + VERSION;
 const ASSETS = [
   "./",
   "./index.html",
   "./css/styles.css",
   "./js/words.js",
-  "./js/pairs.js",
+  "./js/clues.js",
   "./js/app.js",
   "./manifest.webmanifest",
   "./icons/icon-192.png",

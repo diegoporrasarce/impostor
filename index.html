@@ -100,24 +100,20 @@
           <label class="switch-row" id="rowHint">
             <span>
               <strong>Pista para el impostor</strong>
-              <small class="muted">Le toca una palabra parecida a la de los demás</small>
+              <small class="muted">Le toca una pista para disimular</small>
             </span>
             <input type="checkbox" id="optHint" class="switch" />
           </label>
         </div>
 
-        <div class="card" id="categoriesCard">
+        <div class="card">
           <div class="card-row">
             <div>
               <h3>Categorías</h3>
               <p class="muted small" id="catCount">—</p>
             </div>
-            <div class="cat-actions">
-              <button class="chip-btn" id="selectAllCats">Todas</button>
-              <button class="chip-btn" id="selectNoneCats">Ninguna</button>
-            </div>
+            <button class="chip-btn" id="btnCategories" type="button">Elegir</button>
           </div>
-          <div class="chips" id="categoriesGrid"></div>
         </div>
 
         <div class="card">
@@ -128,7 +124,7 @@
               <strong>Temporizador de debate</strong>
               <small class="muted">Cuenta atrás para dar pistas</small>
             </span>
-            <input type="checkbox" id="optTimer" class="switch" checked />
+            <input type="checkbox" id="optTimer" class="switch" />
           </label>
 
           <div class="sub-row is-hidden" id="timerRow">
@@ -139,14 +135,6 @@
               <button class="stepper-btn" id="timerPlus" aria-label="Más tiempo">+</button>
             </div>
           </div>
-
-          <label class="switch-row">
-            <span>
-              <strong>Votación en la app</strong>
-              <small class="muted">Voto secreto pasando el móvil</small>
-            </span>
-            <input type="checkbox" id="optVote" class="switch" checked />
-          </label>
 
           <label class="switch-row">
             <span>
@@ -162,6 +150,28 @@
 
       <div class="sticky-bottom">
         <button class="btn btn-primary btn-xl" id="startGame">Empezar partida</button>
+      </div>
+    </section>
+
+    <!-- ============================= CATEGORIES ============================= -->
+    <section class="screen" id="screen-categories" data-screen="categories">
+      <header class="topbar">
+        <button class="icon-btn" data-back="setup" aria-label="Volver">←</button>
+        <h2>Categorías</h2>
+        <span class="topbar-spacer"></span>
+      </header>
+
+      <div class="scroll">
+        <div class="cat-actions cat-actions-top">
+          <button class="chip-btn" id="selectAllCats">Todas</button>
+          <button class="chip-btn" id="selectNoneCats">Ninguna</button>
+        </div>
+        <div class="chips" id="categoriesGrid"></div>
+        <div class="spacer"></div>
+      </div>
+
+      <div class="sticky-bottom">
+        <button class="btn btn-primary btn-xl" data-back="setup">Listo</button>
       </div>
     </section>
 
@@ -223,31 +233,7 @@
       </div>
 
       <div class="sticky-bottom">
-        <button class="btn btn-primary btn-xl" id="btnToVote">Ir a votar</button>
-        <button class="btn btn-ghost" id="btnToResult">Saltar a la solución</button>
-      </div>
-    </section>
-
-    <!-- ============================= VOTE ============================= -->
-    <section class="screen" id="screen-vote" data-screen="vote">
-      <header class="topbar topbar-transparent">
-        <button class="icon-btn" id="voteExit" aria-label="Salir">✕</button>
-        <span class="progress-label" id="voteStep">Votación 1 de 6</span>
-        <span class="topbar-spacer"></span>
-      </header>
-
-      <div class="scroll">
-        <div class="vote-head">
-          <p class="handoff-kicker" id="voteKicker">Pasa el móvil a</p>
-          <h2 class="handoff-name" id="voteName">Jugador 1</h2>
-          <p class="muted" id="voteQuestion">¿Quién crees que es el impostor?</p>
-        </div>
-        <div class="vote-grid" id="voteGrid"></div>
-        <div class="spacer"></div>
-      </div>
-
-      <div class="sticky-bottom">
-        <button class="btn btn-primary btn-xl" id="voteConfirm" disabled>Confirmar voto</button>
+        <button class="btn btn-primary btn-xl" id="btnSolve">Revelar la solución</button>
       </div>
     </section>
 
@@ -272,8 +258,6 @@
             <span class="result-card-value" id="resultDecoy">—</span>
           </div>
         </div>
-
-        <div class="info-box is-hidden" id="voteOutcome"></div>
 
         <div class="spacer"></div>
       </div>
@@ -301,7 +285,7 @@
   </div>
 
   <script src="js/words.js"></script>
-  <script src="js/pairs.js"></script>
+  <script src="js/clues.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

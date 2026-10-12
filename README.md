@@ -10,28 +10,31 @@ recibe una palabra distinta (o ninguna) y el resto tiene que descubrir quién es
 ## 🎮 Cómo se juega
 
 1. Elegid cuántos jugáis y empezad la partida.
-2. Pasados el móvil. Cada persona ve en secreto **su palabra** o, si es el
-   **impostor**, un aviso (o una palabra parecida si activáis la pista).
+2. Pasaos el móvil. Cada persona ve en secreto **su palabra** o, si es el
+   **impostor**, un aviso (o una **pista** si activáis esa opción).
 3. Por turnos, cada uno da **una pista** sobre su palabra, sin decirla.
 4. El impostor intenta disimular; los demás, pillarle.
-5. Votáis y se revela la solución.
+5. Al terminar el debate se pulsa «Revelar la solución».
 
 ### Pista para el impostor
 
 Es una opción que se activa o desactiva en los ajustes:
 
 - **Desactivada** — el impostor no tiene palabra y debe improvisar.
-- **Activada** — el impostor recibe una palabra **parecida** a la del resto
-  (de una lista de parejas de palabras) y debe disimular.
+- **Activada** — el impostor recibe una **pista**: una palabra relacionada con
+  la del resto, pero no obvia, para poder disimular. Las categorías siguen
+  activas: la palabra principal sale de ellas como siempre.
+
+La lista de pistas también funciona como palabras jugables: la categoría
+**Pistas** recoge todas las palabras que solo aparecen como pista.
 
 ### Extras
 
 - **Nombres de jugadores**: poned vuestros nombres reales.
-- 26 categorías temáticas.
+- **27 categorías** temáticas (26 + Pistas), con un selector propio.
 - De 1 hasta tantos impostores como jugadores haya.
-- Pista de palabra parecida para el impostor (opcional).
-- Temporizador de debate con aviso sonoro.
-- Votación secreta pasando el móvil.
+- Pista relacionada para el impostor (opcional).
+- Temporizador de debate con aviso sonoro (desactivado por defecto).
 - El móvil se pasa **en orden (1, 2, 3…)** para ver lo que te toca.
 - Instalable como app (PWA) y funciona sin conexión.
 
@@ -76,7 +79,7 @@ python -m http.server 8000
 index.html              interfaz y pantallas
 css/styles.css          estilos (tema oscuro, móvil)
 js/words.js             base de palabras por categorías  ← aquí se añaden palabras
-js/pairs.js             parejas de palabras parecidas (pista del impostor)
+js/clues.js             pistas por palabra (pista del impostor)
 js/app.js               lógica del juego
 manifest.webmanifest    configuración PWA
 sw.js                   service worker (uso sin conexión)
@@ -89,6 +92,14 @@ tools/smoke-test.mjs    prueba automática de la lógica del juego
 ### Añadir palabras
 
 Edita `js/words.js` y añade textos al array `words` de la categoría que quieras.
+
+### Añadir pistas
+
+Edita `js/clues.js` y añade una entrada `"Palabra": ["pista1", "pista2", ...]`.
+La palabra debe existir ya en `js/words.js`. La relación es bidireccional: la
+pista también sirve como palabra, y la palabra original pasa a ser una de sus
+pistas.
+
 Para comprobar que todo es correcto:
 
 ```bash

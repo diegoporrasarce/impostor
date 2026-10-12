@@ -8,7 +8,7 @@
   var $ = function (sel, root) { return (root || document).querySelector(sel); };
   var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
   var DATA = window.IMPOSTOR_DATA || { categories: [] };
-  var PAIRS = window.IMPOSTOR_PAIRS || [];
+  var CLUE_SRC = window.IMPOSTOR_CLUES || {};
 
   function clamp(n, min, max) { return Math.min(max, Math.max(min, n)); }
   function randInt(n) { return Math.floor(Math.random() * n); }
@@ -28,6 +28,44 @@
     return m + ":" + (sec < 10 ? "0" : "") + sec;
   }
   function maxImpostors(players) { return Math.max(1, players); }
+
+  /* ---------------- Pistas (mapa bidireccional) ----------------
+     Cada entrada de CLUE_SRC asocia una palabra con varias pistas. La relación
+     es simétrica: si "Pizza" tiene la pista "horno", entonces "horno" tiene la
+     pista "Pizza". Así una pista también sirve como palabra del juego.
+     Las pistas que no estén en la base de palabras se añaden como categoría
+     jugable "Pistas". */
+  var CLUE_MAP = {};
+  (function buildClues() {
+    var known = {};
+    DATA.categories.forEach(function (c) {
+      c.words.forEach(function (w) { known[w.toLowerCase()] = true; });
+    });
+    function link(a, b) {
+      if (!CLUE_MAP[a]) CLUE_MAP[a] = [];
+      if (CLUE_MAP[a].indexOf(b) === -1) CLUE_MAP[a].push(b);
+    }
+    Object.keys(CLUE_SRC).forEach(function (w) {
+      (CLUE_SRC[w] || []).forEach(function (cl) {
+        link(w, cl);
+        link(cl, w);
+      });
+    });
+    var seen = {};
+    var clueWords = [];
+    Object.keys(CLUE_SRC).forEach(function (w) {
+      (CLUE_SRC[w] || []).forEach(function (cl) {
+        var k = cl.toLowerCase();
+        if (known[k] || seen[k]) return;
+        seen[k] = true;
+        clueWords.push(cl);
+      });
+    });
+    if (clueWords.length) {
+      DATA.categories.push({ id: "pistas", name: "Pistas", emoji: "💡", words: clueWords });
+    }
+  })();
+  function cluesFor(word) { return CLUE_MAP[word] || []; }
 
   /* ---------------- Nombres de los jugadores ---------------- */
   function nameFor(p) {
@@ -49,14 +87,13 @@
     categories: null,        // null = todas
     hint: false,
     names: [],
-    timer: true,
+    timer: false,
     timerSeconds: 120,
-    vote: true,
     sound: true
   };
   var game = null;
   var usedWords = {};
-  var usedPairs = {};
+  var usedClues = {};
   var currentScreen = "home";
 
   function saveSettings() { try { localStorage.setItem(LS_SETTINGS, JSON.stringify(settings)); } catch (e) {} }
@@ -64,6 +101,7 @@
     try {
       var raw = localStorage.getItem(LS_SETTINGS);
       if (raw) Object.assign(settings, JSON.parse(raw));
+      if (typeof settings.timer !== "boolean") settings.timer = false;
     } catch (e) {}
   }
 
@@ -155,22 +193,22 @@
   }
   function updateCatCount() {
     var cats = getActiveCategories();
+    var all = getAllCategories();
     var words = cats.reduce(function (n, c) { return n + c.words.length; }, 0);
-    $("#catCount").textContent = cats.length + (cats.length === 1 ? " categoría · " : " categorías · ") +
-      words.toLocaleString("es-ES") + " palabras";
+    var txt = (cats.length === all.length ? "Todas (" + all.length + ")" : cats.length + " de " + all.length) +
+      " · " + words.toLocaleString("es-ES") + " palabras";
+    var el = $("#catCount");
+    if (el) el.textContent = txt;
   }
   function updateHomeCount() {
     var words = DATA.categories.reduce(function (n, c) { return n + c.words.length; }, 0);
     $("#homeWordCount").textContent = words.toLocaleString("es-ES") + " palabras · " +
-      DATA.categories.length + " categorías · " + PAIRS.length + " parejas";
+      DATA.categories.length + " categorías";
   }
 
   /* ---------------- Ajustes en pantalla ---------------- */
   function updateHintUI() {
     $("#optHint").checked = settings.hint;
-    // Con pista se juega con parejas de palabras parecidas, así que las categorías no aplican.
-    $("#categoriesCard").classList.toggle("is-hidden", settings.hint);
-    updateCatCount();
   }
   function updateCountersUI() {
     var max = maxImpostors(settings.players);
@@ -186,52 +224,51 @@
   function updateSwitchesUI() {
     $("#optHint").checked = settings.hint;
     $("#optTimer").checked = settings.timer;
-    $("#optVote").checked = settings.vote;
     $("#optSound").checked = settings.sound;
   }
   function updateSetupUI() {
     updateSwitchesUI();
     updateCountersUI();
     updateHintUI();
+    updateCatCount();
   }
 
   /* ---------------- Selección de palabras ---------------- */
-  function pickClassicWord() {
+  function pickWord(needClue) {
     var pool = [];
     getActiveCategories().forEach(function (c) {
       c.words.forEach(function (w) { pool.push({ w: w, cat: c.name }); });
     });
     if (!pool.length) return null;
-    var available = pool.filter(function (p) { return !usedWords[p.w]; });
-    if (!available.length) { usedWords = {}; available = pool; }
+    var candidates = pool;
+    if (needClue) {
+      var withClue = pool.filter(function (p) { return cluesFor(p.w).length > 0; });
+      if (withClue.length) candidates = withClue;
+    }
+    var available = candidates.filter(function (p) { return !usedWords[p.w]; });
+    if (!available.length) { usedWords = {}; available = candidates; }
     var chosen = available[randInt(available.length)];
     usedWords[chosen.w] = true;
     return chosen;
   }
-  function pickPair() {
-    if (!PAIRS.length) return null;
-    var idxs = [];
-    for (var i = 0; i < PAIRS.length; i++) if (!usedPairs[i]) idxs.push(i);
-    if (!idxs.length) { usedPairs = {}; idxs = range(0, PAIRS.length - 1); }
-    var idx = idxs[randInt(idxs.length)];
-    usedPairs[idx] = true;
-    var p = PAIRS[idx];
-    var flip = Math.random() < 0.5;
-    return { word: flip ? p[0] : p[1], decoy: flip ? p[1] : p[0] };
+  function pickClue(word) {
+    var list = cluesFor(word);
+    if (!list.length) return null;
+    var available = list.filter(function (c) { return !usedClues[word + "|" + c]; });
+    if (!available.length) {
+      list.forEach(function (c) { delete usedClues[word + "|" + c]; });
+      available = list;
+    }
+    var c = available[randInt(available.length)];
+    usedClues[word + "|" + c] = true;
+    return c;
   }
 
   /* ---------------- Partida ---------------- */
   function prepareRound() {
-    var word = null, decoy = null, categoryName = "";
-    if (settings.hint) {
-      var pair = pickPair();
-      if (!pair) { toast("No hay parejas de palabras disponibles"); return; }
-      word = pair.word; decoy = pair.decoy;
-    } else {
-      var chosen = pickClassicWord();
-      if (!chosen) { toast("Elige al menos una categoría con palabras"); return; }
-      word = chosen.w; categoryName = chosen.cat;
-    }
+    var chosen = pickWord(settings.hint);
+    if (!chosen) { toast("Elige al menos una categoría con palabras"); return; }
+    var decoy = settings.hint ? pickClue(chosen.w) : null;
 
     var impostorList = shuffle(range(1, settings.players)).slice(0, settings.impostors);
     var impostorSet = {};
@@ -239,18 +276,13 @@
 
     game = {
       players: settings.players,
-      word: word,
+      word: chosen.w,
       decoy: decoy,
-      categoryName: categoryName,
+      categoryName: chosen.cat,
       impostorSet: impostorSet,
       impostorList: impostorList,
       revealOrder: range(1, settings.players),
-      index: 0,
-      votes: {},
-      voteOrder: [],
-      voteIndex: 0,
-      selectedVote: null,
-      tally: null
+      index: 0
     };
     beep(600, 0.09); vibrate(15);
     showScreen("reveal");
@@ -364,63 +396,11 @@
       ? "Hay 1 impostor entre vosotros."
       : "Hay " + n + " impostores entre vosotros.";
     $("#impostorInfoText").textContent = settings.hint
-      ? "El impostor tiene una palabra parecida a la vuestra."
+      ? "El impostor tiene una pista para disimular."
       : "El impostor no sabe la palabra y debe improvisar.";
-    $("#btnToVote").textContent = settings.vote ? "Ir a votar" : "Revelar la solución";
     $("#discLead").textContent = "Cada jugador da una pista sobre su palabra… sin decirla.";
     showScreen("discussion");
     startDiscussionTimer();
-  }
-
-  /* ---------------- Votación ---------------- */
-  function startVoting() {
-    game.voteOrder = range(1, game.players);
-    game.voteIndex = 0;
-    game.votes = {};
-    game.selectedVote = null;
-    game.tally = null;
-    renderVoteStep();
-    showScreen("vote");
-  }
-  function renderVoteStep() {
-    if (game.voteIndex >= game.voteOrder.length) { finishVoting(); return; }
-    var voter = game.voteOrder[game.voteIndex];
-    game.selectedVote = null;
-    $("#voteStep").textContent = "Votación " + (game.voteIndex + 1) + " de " + game.voteOrder.length;
-    $("#voteName").textContent = nameFor(voter);
-    $("#voteQuestion").textContent = "¿Quién crees que es el impostor?";
-    var grid = $("#voteGrid");
-    grid.innerHTML = "";
-    for (var p = 1; p <= game.players; p++) {
-      if (p === voter) continue;
-      (function (cand) {
-        var b = document.createElement("button");
-        b.type = "button";
-        b.className = "vote-option";
-        b.textContent = nameFor(cand);
-        b.addEventListener("click", function () {
-          $$(".vote-option").forEach(function (x) { x.classList.remove("is-selected"); });
-          b.classList.add("is-selected");
-          game.selectedVote = cand;
-          $("#voteConfirm").disabled = false;
-          beep(520, 0.06); vibrate(10);
-        });
-        grid.appendChild(b);
-      })(p);
-    }
-    $("#voteConfirm").disabled = true;
-  }
-  function finishVoting() {
-    var counts = {};
-    for (var p = 1; p <= game.players; p++) counts[p] = 0;
-    Object.keys(game.votes).forEach(function (voter) { counts[game.votes[voter]] += 1; });
-    var max = -1, leaders = [];
-    for (var i = 1; i <= game.players; i++) {
-      if (counts[i] > max) { max = counts[i]; leaders = [i]; }
-      else if (counts[i] === max) leaders.push(i);
-    }
-    game.tally = { counts: counts, max: max, leaders: leaders, accused: leaders.length === 1 ? leaders[0] : null };
-    showResult();
   }
 
   /* ---------------- Resultado ---------------- */
@@ -443,48 +423,9 @@
       decoyCard.classList.add("is-hidden");
     }
 
-    var voteBox = $("#voteOutcome");
-    var emoji = $("#resultEmoji");
-    var title = $("#resultTitle");
-    var sub = $("#resultSub");
-
-    if (g.tally) {
-      var t = g.tally;
-      voteBox.classList.remove("is-hidden");
-      voteBox.classList.remove("good", "bad");
-      var strong = document.createElement("strong");
-      var summary = document.createElement("span");
-      summary.className = "muted small";
-      summary.textContent = range(1, g.players).map(function (p) { return nameFor(p) + ": " + (t.counts[p] || 0); }).join("   ");
-
-      if (!t.accused) {
-        emoji.textContent = "🤝";
-        title.textContent = "Empate en la votación";
-        sub.textContent = "No os pusisteis de acuerdo. ¡El impostor se salva!";
-        strong.textContent = "Empate entre: " + t.leaders.map(function (p) { return nameFor(p); }).join(", ") + ".";
-        voteBox.classList.add("bad");
-      } else if (g.impostorSet[t.accused]) {
-        emoji.textContent = "🎉";
-        title.textContent = "¡Habéis pillado al impostor!";
-        sub.textContent = nameFor(t.accused) + " era impostor. Gana el grupo.";
-        strong.textContent = "Más votado: " + nameFor(t.accused) + " con " + t.max + (t.max === 1 ? " voto." : " votos.");
-        voteBox.classList.add("good");
-      } else {
-        emoji.textContent = "😈";
-        title.textContent = "¡Se han librado!";
-        sub.textContent = nameFor(t.accused) + " era inocente. Gana el impostor.";
-        strong.textContent = "Más votado: " + nameFor(t.accused) + " con " + t.max + (t.max === 1 ? " voto." : " votos.");
-        voteBox.classList.add("bad");
-      }
-      voteBox.innerHTML = "";
-      voteBox.appendChild(strong);
-      voteBox.appendChild(summary);
-    } else {
-      voteBox.classList.add("is-hidden");
-      emoji.textContent = "🕵️";
-      title.textContent = "El impostor era…";
-      sub.textContent = impArr.length > 1 ? "Estos eran los impostores." : "Este era el impostor.";
-    }
+    $("#resultEmoji").textContent = "🕵️";
+    $("#resultTitle").textContent = "El impostor era…";
+    $("#resultSub").textContent = impArr.length > 1 ? "Estos eran los impostores." : "Este era el impostor.";
 
     beep(720, 0.14); vibrate(30);
     showScreen("result");
@@ -556,7 +497,6 @@
     $("#selectNoneCats").addEventListener("click", function () { settings.categories = []; saveSettings(); renderCategories(); });
     $("#optHint").addEventListener("change", function () { settings.hint = this.checked; saveSettings(); updateHintUI(); });
     $("#optTimer").addEventListener("change", function () { settings.timer = this.checked; saveSettings(); updateCountersUI(); });
-    $("#optVote").addEventListener("change", function () { settings.vote = this.checked; saveSettings(); });
     $("#optSound").addEventListener("change", function () { settings.sound = this.checked; saveSettings(); });
     $("#startGame").addEventListener("click", function () { prepareRound(); });
   }
@@ -566,6 +506,11 @@
       beep(560, 0.07);
       updateSetupUI();
       showScreen("setup");
+    });
+
+    $("#btnCategories").addEventListener("click", function () {
+      renderCategories();
+      showScreen("categories");
     });
 
     $$("[data-back]").forEach(function (b) {
@@ -585,7 +530,6 @@
     };
     $("#revealExit").addEventListener("click", confirmExit);
     $("#discExit").addEventListener("click", confirmExit);
-    $("#voteExit").addEventListener("click", confirmExit);
   }
 
   function bindReveal() {
@@ -599,22 +543,9 @@
       this.textContent = timerPaused ? "Continuar" : "Pausar";
       beep(timerPaused ? 380 : 520, 0.06);
     });
-    $("#btnToVote").addEventListener("click", function () {
+    $("#btnSolve").addEventListener("click", function () {
       stopDiscussionTimer();
-      if (settings.vote) startVoting();
-      else showResult();
-    });
-    $("#btnToResult").addEventListener("click", function () { stopDiscussionTimer(); showResult(); });
-  }
-
-  function bindVote() {
-    $("#voteConfirm").addEventListener("click", function () {
-      if (game.selectedVote == null) return;
-      var voter = game.voteOrder[game.voteIndex];
-      game.votes[voter] = game.selectedVote;
-      beep(760, 0.08); vibrate(15);
-      game.voteIndex++;
-      renderVoteStep();
+      showResult();
     });
   }
 
@@ -647,7 +578,6 @@
     bindNavigation();
     bindReveal();
     bindDiscussion();
-    bindVote();
     bindResult();
     bindNames();
     renderCategories();

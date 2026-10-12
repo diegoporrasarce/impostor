@@ -1,5 +1,5 @@
 /*
- * Comprueba la base de palabras: totales, duplicados y categorías vacías.
+ * Comprueba la base de palabras y las pistas: totales, duplicados y categorías vacías.
  * Uso: node tools/validate.mjs
  */
 import { readFileSync } from "node:fs";
@@ -11,10 +11,10 @@ function load(rel) {
 }
 
 load("../js/words.js");
-load("../js/pairs.js");
+load("../js/clues.js");
 
 const DATA = window.IMPOSTOR_DATA;
-const PAIRS = window.IMPOSTOR_PAIRS;
+const CLUES = window.IMPOSTOR_CLUES;
 const problems = [];
 let total = 0;
 
@@ -40,17 +40,30 @@ for (const cat of DATA.categories) {
 }
 const cross = [...index.entries()].filter(([, set]) => set.size > 1);
 
-const pairSeen = new Set();
-for (const p of PAIRS) {
-  if (!Array.isArray(p) || p.length !== 2 || !p[0] || !p[1]) problems.push(`pareja inválida: ${JSON.stringify(p)}`);
-  const key = [p[0].toLowerCase(), p[1].toLowerCase()].sort().join("|");
-  if (pairSeen.has(key)) problems.push(`pareja duplicada: ${p.join(" / ")}`);
-  pairSeen.add(key);
+/* --- Pistas --- */
+const keyIndex = new Set(index.keys());
+let clueLinks = 0;
+const clueWords = new Set();
+const seenClueWord = new Set();
+for (const [word, list] of Object.entries(CLUES)) {
+  if (!keyIndex.has(word.toLowerCase())) problems.push(`pista de palabra que no existe: "${word}"`);
+  if (!Array.isArray(list) || list.length === 0) problems.push(`palabra sin pistas: "${word}"`);
+  const own = new Set();
+  for (const cl of list) {
+    if (typeof cl !== "string" || !cl.trim()) { problems.push(`pista vacía en "${word}"`); continue; }
+    const k = cl.toLowerCase();
+    if (k === word.toLowerCase()) problems.push(`pista que repite su palabra: "${word}"`);
+    if (own.has(k)) problems.push(`pista repetida en "${word}": ${cl}`);
+    own.add(k);
+    clueLinks++;
+    if (!keyIndex.has(k)) clueWords.add(cl);
+  }
 }
 
 console.log(`Categorías: ${DATA.categories.length}`);
 console.log(`Palabras:   ${total}`);
-console.log(`Parejas:    ${PAIRS.length}`);
+console.log(`Palabras con pistas: ${Object.keys(CLUES).length} (${clueLinks} pistas)`);
+console.log(`Pistas nuevas (categoría "Pistas"): ${clueWords.size}`);
 console.log(`Repetidas en varias categorías: ${cross.length}`);
 for (const [w, set] of cross.slice(0, 20)) console.log(`  · "${w}" → ${[...set].join(", ")}`);
 if (problems.length) {
