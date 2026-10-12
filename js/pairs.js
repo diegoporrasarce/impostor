@@ -1,8 +1,8 @@
 /*
- * Parejas de palabras para el modo "Infiltrado".
- * En este modo TODOS reciben una palabra, pero la del impostor es parecida
- * (y distinta) a la del resto. Nadie sabe de primeras quién tiene la diferente.
- * Formato: ["palabra mayoritaria", "palabra del impostor"].
+ * Parejas de palabras parecidas para la "pista" del impostor.
+ * Cuando se activa la pista, el impostor recibe la pareja de la palabra
+ * mayoritaria (una palabra parecida y distinta) como ayuda para disimular.
+ * Formato: ["palabra mayoritaria", "palabra de la pista"].
  */
 window.IMPOSTOR_PAIRS = [
   // Comida

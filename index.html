@@ -97,12 +97,13 @@
         </div>
 
         <div class="card">
-          <h3>Modo de juego</h3>
-          <div class="segmented" role="tablist">
-            <button class="seg-btn is-active" data-mode="classic" role="tab">Clásico</button>
-            <button class="seg-btn" data-mode="infiltrate" role="tab">Infiltrado</button>
-          </div>
-          <p class="muted small" id="modeDesc">El impostor no sabe la palabra y debe disimular.</p>
+          <label class="switch-row" id="rowHint">
+            <span>
+              <strong>Pista para el impostor</strong>
+              <small class="muted">Le toca una palabra parecida a la de los demás</small>
+            </span>
+            <input type="checkbox" id="optHint" class="switch" />
+          </label>
         </div>
 
         <div class="card" id="categoriesCard">
@@ -121,14 +122,6 @@
 
         <div class="card">
           <h3>Opciones</h3>
-
-          <label class="switch-row" id="rowHint">
-            <span>
-              <strong>Pista para el impostor</strong>
-              <small class="muted">Solo ve el nombre de la categoría</small>
-            </span>
-            <input type="checkbox" id="optHint" class="switch" checked />
-          </label>
 
           <label class="switch-row">
             <span>
@@ -275,7 +268,7 @@
             <span class="result-card-value" id="resultWord">—</span>
           </div>
           <div class="result-card is-hidden" id="decoyCard">
-            <span class="result-card-label">Palabra del impostor</span>
+            <span class="result-card-label" id="decoyCardLabel">Pista del impostor</span>
             <span class="result-card-value" id="resultDecoy">—</span>
           </div>
         </div>

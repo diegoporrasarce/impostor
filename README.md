@@ -11,23 +11,25 @@ recibe una palabra distinta (o ninguna) y el resto tiene que descubrir quién es
 
 1. Elegid cuántos jugáis y empezad la partida.
 2. Pasados el móvil. Cada persona ve en secreto **su palabra** o, si es el
-   **impostor**, un aviso (o una palabra parecida en modo Infiltrado).
+   **impostor**, un aviso (o una palabra parecida si activáis la pista).
 3. Por turnos, cada uno da **una pista** sobre su palabra, sin decirla.
 4. El impostor intenta disimular; los demás, pillarle.
 5. Votáis y se revela la solución.
 
-### Modos
+### Pista para el impostor
 
-- **Clásico** — el impostor no tiene palabra y debe improvisar.
-- **Infiltrado** — el impostor recibe una palabra *parecida* a la vuestra y
-  tiene que deducir cuál es la buena.
+Es una opción que se activa o desactiva en los ajustes:
+
+- **Desactivada** — el impostor no tiene palabra y debe improvisar.
+- **Activada** — el impostor recibe una palabra **parecida** a la del resto
+  (de una lista de parejas de palabras) y debe disimular.
 
 ### Extras
 
 - **Nombres de jugadores**: poned vuestros nombres reales.
 - 26 categorías temáticas.
 - De 1 hasta tantos impostores como jugadores haya.
-- Pista de categoría para el impostor (opcional).
+- Pista de palabra parecida para el impostor (opcional).
 - Temporizador de debate con aviso sonoro.
 - Votación secreta pasando el móvil.
 - El móvil se pasa **en orden (1, 2, 3…)** para ver lo que te toca.
@@ -74,7 +76,7 @@ python -m http.server 8000
 index.html              interfaz y pantallas
 css/styles.css          estilos (tema oscuro, móvil)
 js/words.js             base de palabras por categorías  ← aquí se añaden palabras
-js/pairs.js             parejas del modo Infiltrado
+js/pairs.js             parejas de palabras parecidas (pista del impostor)
 js/app.js               lógica del juego
 manifest.webmanifest    configuración PWA
 sw.js                   service worker (uso sin conexión)

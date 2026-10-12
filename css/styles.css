@@ -214,32 +214,6 @@ h3 { font-size: 1rem; font-weight: 700; }
 .stepper-sm .stepper-btn { width: 36px; height: 36px; font-size: 1.15rem; }
 .stepper-sm .stepper-value { min-width: 60px; font-size: 1.1rem; }
 
-/* ---------- Segmentado ---------- */
-.segmented {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  background: rgba(0, 0, 0, 0.28);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 5px;
-}
-.seg-btn {
-  border: none;
-  border-radius: 10px;
-  padding: 12px 8px;
-  background: transparent;
-  color: var(--muted);
-  font-size: 0.95rem;
-  font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-}
-.seg-btn.is-active {
-  background: linear-gradient(135deg, var(--accent), #6366f1);
-  color: #0d0a18;
-}
-
 /* ---------- Chips de categorías ---------- */
 .cat-actions { display: flex; gap: 6px; }
 .chip-btn {
@@ -283,7 +257,6 @@ h3 { font-size: 1rem; font-weight: 700; }
   font-weight: 800;
 }
 .chip .chip-emoji { font-size: 1.05rem; }
-.chip .chip-star { font-size: 0.8rem; opacity: 0.9; }
 
 /* ---------- Interruptores ---------- */
 .switch-row {

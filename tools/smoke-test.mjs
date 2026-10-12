@@ -200,21 +200,37 @@ ok(byId("resultWord").textContent === civilWords[0], "el resultado muestra la pa
 ok(byId("resultImpostors").textContent.length > 0, "muestra el/los impostor(es)");
 ok(byId("decoyCard").classList.contains("is-hidden"), "sin tarjeta de señuelo en modo clásico");
 
-/* -------------------- 4. Modo infiltrado -------------------- */
-console.log("\n— Modo infiltrado —");
-const inf = document.querySelectorAll(".seg-btn").find((b) => b.getAttribute("data-mode") === "infiltrate");
-inf.dispatch("click");
-ok(byId("modeDesc").textContent.indexOf("parecida") !== -1, "cambia la descripción del modo");
+/* -------------------- 4. Pista para el impostor -------------------- */
+console.log("\n— Pista para el impostor —");
+const hintSwitch = byId("optHint");
+hintSwitch.checked = true;
+hintSwitch.dispatch("change");
+ok(byId("categoriesCard").classList.contains("is-hidden"), "con pista se ocultan las categorías (se usan parejas)");
 click("startGame");
-ok(activeScreen() === "reveal", "infiltrado empieza el revelado");
+ok(activeScreen() === "reveal", "la partida con pista empieza el revelado");
 const words2 = [];
-for (let i = 0; i < 8; i++) { click("revealButton"); words2.push(byId("cardWord").textContent); click("hideButton"); }
-ok(!words2.includes("IMPOSTOR"), "nadie ve la etiqueta IMPOSTOR");
-ok(new Set(words2).size === 2, "solo hay 2 palabras distintas (mayoría + impostor)");
+const hints2 = [];
+for (let i = 0; i < 8; i++) {
+  click("revealButton");
+  words2.push(byId("cardWord").textContent);
+  hints2.push(byId("cardHint").textContent);
+  click("hideButton");
+}
+const impWords = words2.filter((w) => w === "IMPOSTOR");
+const civWords = words2.filter((w) => w !== "IMPOSTOR");
+ok(impWords.length === 2, "los 2 impostores ven IMPOSTOR");
+ok(new Set(civWords).size === 1 && civWords.length === 6, "los 6 civiles ven la misma palabra");
+const impHints = hints2.filter((h) => h.indexOf("Pista: ") === 0);
+ok(impHints.length === 2, "los impostores reciben una pista de palabra parecida");
+ok(impHints.every((h) => h !== "Pista: " + civWords[0]), "la pista es distinta de la palabra de los civiles");
 click("btnToResult");
 ok(activeScreen() === "result", "salta al resultado");
-ok(!byId("decoyCard").classList.contains("is-hidden"), "muestra la palabra del impostor");
-ok(byId("resultDecoy").textContent.length > 0, "la palabra del impostor no está vacía");
+ok(!byId("decoyCard").classList.contains("is-hidden"), "muestra la pista del impostor");
+ok(byId("resultDecoy").textContent.length > 0, "la pista del impostor no está vacía");
+
+hintSwitch.checked = false;
+hintSwitch.dispatch("change");
+ok(!byId("categoriesCard").classList.contains("is-hidden"), "sin pista vuelven a verse las categorías");
 
 /* -------------------- 5. Categorías -------------------- */
 console.log("\n— Categorías —");

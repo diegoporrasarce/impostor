@@ -46,9 +46,8 @@
   var settings = {
     players: 6,
     impostors: 1,
-    mode: "classic",
     categories: null,        // null = todas
-    hint: true,
+    hint: false,
     names: [],
     timer: true,
     timerSeconds: 120,
@@ -155,10 +154,6 @@
     updateCatCount();
   }
   function updateCatCount() {
-    if (settings.mode === "infiltrate") {
-      $("#catCount").textContent = PAIRS.length + " parejas de palabras";
-      return;
-    }
     var cats = getActiveCategories();
     var words = cats.reduce(function (n, c) { return n + c.words.length; }, 0);
     $("#catCount").textContent = cats.length + (cats.length === 1 ? " categoría · " : " categorías · ") +
@@ -171,14 +166,10 @@
   }
 
   /* ---------------- Ajustes en pantalla ---------------- */
-  function updateModeUI() {
-    var inf = settings.mode === "infiltrate";
-    $$(".seg-btn").forEach(function (b) { b.classList.toggle("is-active", b.getAttribute("data-mode") === settings.mode); });
-    $("#modeDesc").textContent = inf
-      ? "Todos reciben una palabra, pero la del impostor es parecida. Se usan parejas de palabras."
-      : "El impostor no sabe la palabra y debe disimular.";
-    $("#rowHint").classList.toggle("is-hidden", inf);
-    $("#categoriesCard").classList.toggle("is-hidden", inf);
+  function updateHintUI() {
+    $("#optHint").checked = settings.hint;
+    // Con pista se juega con parejas de palabras parecidas, así que las categorías no aplican.
+    $("#categoriesCard").classList.toggle("is-hidden", settings.hint);
     updateCatCount();
   }
   function updateCountersUI() {
@@ -201,7 +192,7 @@
   function updateSetupUI() {
     updateSwitchesUI();
     updateCountersUI();
-    updateModeUI();
+    updateHintUI();
   }
 
   /* ---------------- Selección de palabras ---------------- */
@@ -232,7 +223,7 @@
   /* ---------------- Partida ---------------- */
   function prepareRound() {
     var word = null, decoy = null, categoryName = "";
-    if (settings.mode === "infiltrate") {
+    if (settings.hint) {
       var pair = pickPair();
       if (!pair) { toast("No hay parejas de palabras disponibles"); return; }
       word = pair.word; decoy = pair.decoy;
@@ -247,7 +238,6 @@
     impostorList.forEach(function (p) { impostorSet[p] = true; });
 
     game = {
-      mode: settings.mode,
       players: settings.players,
       word: word,
       decoy: decoy,
@@ -282,15 +272,15 @@
     var role, wordText, hint = "";
     card.classList.remove("is-impostor");
 
-    if (isImpostor && game.mode === "classic") {
+    if (isImpostor) {
       role = "Eres el impostor";
       wordText = "IMPOSTOR";
       card.classList.add("is-impostor");
-      if (settings.hint && game.categoryName) hint = "Categoría: " + game.categoryName;
+      if (settings.hint && game.decoy) hint = "Pista: " + game.decoy;
       beep(170, 0.22, "sawtooth"); vibrate(60);
     } else {
       role = "Tu palabra es";
-      wordText = isImpostor ? game.decoy : game.word;
+      wordText = game.word;
       beep(680, 0.1); vibrate(20);
     }
 
@@ -373,7 +363,7 @@
     $("#impostorInfoTitle").textContent = n === 1
       ? "Hay 1 impostor entre vosotros."
       : "Hay " + n + " impostores entre vosotros.";
-    $("#impostorInfoText").textContent = game.mode === "infiltrate"
+    $("#impostorInfoText").textContent = settings.hint
       ? "El impostor tiene una palabra parecida a la vuestra."
       : "El impostor no sabe la palabra y debe improvisar.";
     $("#btnToVote").textContent = settings.vote ? "Ir a votar" : "Revelar la solución";
@@ -442,11 +432,11 @@
 
     $("#impostorCardLabel").textContent = impArr.length > 1 ? "Impostores" : "Impostor";
     $("#resultImpostors").textContent = impNames;
-    $("#wordCardLabel").textContent = g.mode === "infiltrate" ? "La palabra (mayoría)" : "La palabra era";
+    $("#wordCardLabel").textContent = "La palabra era";
     $("#resultWord").textContent = g.word;
 
     var decoyCard = $("#decoyCard");
-    if (g.mode === "infiltrate" && g.decoy) {
+    if (g.decoy) {
       decoyCard.classList.remove("is-hidden");
       $("#resultDecoy").textContent = g.decoy;
     } else {
@@ -562,14 +552,9 @@
     $("#timerPlus").addEventListener("click", function () {
       settings.timerSeconds = clamp(settings.timerSeconds + 30, 30, 600); saveSettings(); updateCountersUI();
     });
-    $$(".seg-btn").forEach(function (b) {
-      b.addEventListener("click", function () {
-        settings.mode = b.getAttribute("data-mode"); saveSettings(); updateModeUI(); beep(560, 0.06);
-      });
-    });
     $("#selectAllCats").addEventListener("click", function () { settings.categories = null; saveSettings(); renderCategories(); });
     $("#selectNoneCats").addEventListener("click", function () { settings.categories = []; saveSettings(); renderCategories(); });
-    $("#optHint").addEventListener("change", function () { settings.hint = this.checked; saveSettings(); });
+    $("#optHint").addEventListener("change", function () { settings.hint = this.checked; saveSettings(); updateHintUI(); });
     $("#optTimer").addEventListener("change", function () { settings.timer = this.checked; saveSettings(); updateCountersUI(); });
     $("#optVote").addEventListener("change", function () { settings.vote = this.checked; saveSettings(); });
     $("#optSound").addEventListener("change", function () { settings.sound = this.checked; saveSettings(); });
