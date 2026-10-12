@@ -468,6 +468,25 @@ window.IMPOSTOR_DATA = {
       "Orquesta sinfónica", "Director de orquesta", "Crítico de arte", "Coleccionista",
       "Antigüedad", "Subasta", "Cuadro famoso", "Obra maestra", "Vanguardismo",
       "Surrealismo", "Impresionismo", "Renacimiento", "Barroco", "Cubismo"
+    ]},
+
+    { id: "random", name: "Random", emoji: "🎲", words: [
+      "Messi", "Cristiano", "Bad Bunny", "Melendi", "Amaral", "Rosalía",
+      "Quevedo", "Bizarrap", "Netanyahu", "PSOE", "VOX", "PP", "Trump", "Milei",
+      "ChatGPT", "Shein", "Temu", "Glovo", "Vinted",
+      "Bitcoin", "Tinder", "Cringe", "Selfie", "Hashtag",
+      "Streamer", "Podcast", "Bot", "Random", "Postureo", "Friki", "Guay",
+      "67", "69", "007", "666", "420", "24/7", "112", "911", "404", "2000", "42",
+      "Haram", "Errete", "Tríceps", "Tridente", "Persiana", "Exprimidor",
+      "Peonza", "Tamagotchi", "Cachimba", "Butanero", "Bíceps", "Cuádriceps",
+      "Menisco", "Espinilla", "Padrastro", "Andorra", "Móstoles", "Guiri",
+      "Resaca", "Cubata", "Vermut", "Chiringuito", "Cachopo",
+      "Alpargata", "Fallera", "Torero", "Perreo",
+      "Autotune", "Ibai", "Rubius", "TheGrefg", "Dross",
+      "Nadal", "Alcaraz", "Fernando Alonso", "Marc Márquez", "LeBron",
+      "Beyoncé", "DiCaprio", "Pikachu", "Goku", "Barbie",
+      "Oppenheimer", "Cassette", "Walkman", "Nokia", "Floppy", "Tablet",
+      "Kindle", "Ornitorrinco"
     ]}
   ]
 };

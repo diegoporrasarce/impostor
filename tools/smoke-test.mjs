@@ -227,7 +227,7 @@ ok(activeScreen() === "setup", "vuelve a los ajustes");
 click("btnCategories");
 ok(activeScreen() === "categories", "abre la pantalla de categorías");
 const chipCount = byId("categoriesGrid").children.length;
-ok(chipCount === 27, "el selector tiene 27 categorías (26 + Pistas) (" + chipCount + ")");
+ok(chipCount === 28, "el selector tiene 28 categorías (26 + Random + Pistas) (" + chipCount + ")");
 ok(byId("catCount").textContent.indexOf("palabras") !== -1, "muestra el total de palabras seleccionadas");
 click("selectNoneCats");
 ok(byId("catCount").textContent.indexOf("0 palabras") !== -1, "con «Ninguna» quedan 0 palabras");

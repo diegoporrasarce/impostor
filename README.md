@@ -31,7 +31,7 @@ La lista de pistas también funciona como palabras jugables: la categoría
 ### Extras
 
 - **Nombres de jugadores**: poned vuestros nombres reales.
-- **27 categorías** temáticas (26 + Pistas), con un selector propio.
+- **28 categorías** (26 temáticas + Random + Pistas), con un selector propio.
 - De 1 hasta tantos impostores como jugadores haya.
 - Pista relacionada para el impostor (opcional).
 - Temporizador de debate con aviso sonoro (desactivado por defecto).
