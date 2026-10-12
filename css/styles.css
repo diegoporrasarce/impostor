@@ -441,16 +441,10 @@ h3 { font-size: 1rem; font-weight: 700; }
 .timer-ring.is-done { animation: pulse 1s ease-in-out infinite; }
 @keyframes pulse { 50% { transform: scale(1.05); } }
 
-.speak-order {
-  margin: 0;
-  padding-left: 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  color: var(--text);
-}
-.speak-order li { font-size: 1.05rem; font-weight: 600; }
-.speak-order li::marker { color: var(--accent-2); font-weight: 800; }
+.start-card { align-items: flex-start; gap: 2px; }
+.start-kicker { color: var(--muted); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.08em; }
+.start-name { font-size: 1.5rem; font-weight: 900; }
+.start-name::before { content: "🎤 "; }
 
 .info-box {
   max-width: 420px;

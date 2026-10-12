@@ -282,6 +282,7 @@
       impostorSet: impostorSet,
       impostorList: impostorList,
       revealOrder: range(1, settings.players),
+      startPlayer: 1 + randInt(settings.players),
       index: 0
     };
     beep(600, 0.09); vibrate(15);
@@ -384,13 +385,7 @@
     if (timerHandle) { clearInterval(timerHandle); timerHandle = null; }
   }
   function goDiscussion() {
-    var ol = $("#speakOrder");
-    ol.innerHTML = "";
-    for (var i = 1; i <= game.players; i++) {
-      var li = document.createElement("li");
-      li.textContent = nameFor(i);
-      ol.appendChild(li);
-    }
+    $("#startName").textContent = nameFor(game.startPlayer);
     var n = game.impostorList.length;
     $("#impostorInfoTitle").textContent = n === 1
       ? "Hay 1 impostor entre vosotros."

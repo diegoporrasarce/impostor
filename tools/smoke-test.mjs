@@ -181,7 +181,8 @@ const civilWords = words.filter((w) => w !== "IMPOSTOR");
 ok(impostorReveals === 2, "exactamente 2 jugadores ven IMPOSTOR");
 ok(new Set(civilWords).size === 1 && civilWords.length === 6, "los 6 civiles ven la misma palabra");
 ok(activeScreen() === "discussion", "pasa al debate tras revelar a todos");
-ok(byId("speakOrder").children[0].textContent === "Marta", "el orden de palabra empieza por el jugador 1");
+const validNames = ["Marta", "Bruno", "Jugador 3", "Jugador 4", "Jugador 5", "Jugador 6", "Jugador 7", "Jugador 8"];
+ok(validNames.indexOf(byId("startName").textContent) !== -1, "indica un jugador válido para empezar el debate");
 
 click("btnSolve");
 ok(activeScreen() === "result", "al revelar la solución muestra el resultado");
