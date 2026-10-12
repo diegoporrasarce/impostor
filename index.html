@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>El Impostor · Juego de palabras para amigos</title>
+  <meta name="description" content="El juego del impostor para jugar con amigos pasando el móvil. Miles de palabras, sin anuncios y funciona sin conexión." />
+  <meta name="theme-color" content="#120f1e" />
+  <meta name="color-scheme" content="dark" />
+
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Impostor" />
+
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- ============================= HOME ============================= -->
+    <section class="screen is-active" id="screen-home" data-screen="home">
+      <div class="home">
+        <div class="home-hero">
+          <div class="home-logo" aria-hidden="true">
+            <svg viewBox="0 0 100 100" width="96" height="96">
+              <defs>
+                <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#8b5cf6"/>
+                  <stop offset="1" stop-color="#22d3ee"/>
+                </linearGradient>
+              </defs>
+              <ellipse cx="50" cy="50" rx="42" ry="26" fill="url(#g1)"/>
+              <circle cx="50" cy="50" r="17" fill="#120f1e"/>
+              <circle cx="44" cy="43" r="5" fill="#e9d5ff" opacity="0.9"/>
+            </svg>
+          </div>
+          <h1 class="home-title">El Impostor</h1>
+          <p class="home-sub">Todos saben la palabra menos uno.<br>¿Serás capaz de descubrirlo?</p>
+        </div>
+
+        <div class="home-actions">
+          <button class="btn btn-primary btn-xl" id="btnPlay">
+            <span>Jugar</span>
+          </button>
+
+          <div class="home-row">
+            <button class="btn btn-ghost" id="btnCustom">✏️ Mis palabras</button>
+            <button class="btn btn-ghost" id="btnRules">❓ Cómo jugar</button>
+          </div>
+        </div>
+
+        <div class="home-footer">
+          <p id="homeWordCount" class="muted"></p>
+          <p class="muted small">Sin anuncios · Se puede instalar · Funciona sin conexión</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= SETUP ============================= -->
+    <section class="screen" id="screen-setup" data-screen="setup">
+      <header class="topbar">
+        <button class="icon-btn" data-back="home" aria-label="Volver">←</button>
+        <h2>Nueva partida</h2>
+        <span class="topbar-spacer"></span>
+      </header>
+
+      <div class="scroll">
+        <div class="card">
+          <div class="card-row">
+            <div>
+              <h3>¿Cuántos juegan?</h3>
+              <p class="muted small">Entre 3 y 16 personas</p>
+            </div>
+            <div class="stepper">
+              <button class="stepper-btn" id="playersMinus" aria-label="Menos jugadores">−</button>
+              <output class="stepper-value" id="playersValue">6</output>
+              <button class="stepper-btn" id="playersPlus" aria-label="Más jugadores">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-row">
+            <div>
+              <h3>Impostores</h3>
+              <p class="muted small" id="impostorsNote">1 impostor</p>
+            </div>
+            <div class="stepper">
+              <button class="stepper-btn" id="impostorsMinus" aria-label="Menos impostores">−</button>
+              <output class="stepper-value" id="impostorsValue">1</output>
+              <button class="stepper-btn" id="impostorsPlus" aria-label="Más impostores">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Modo de juego</h3>
+          <div class="segmented" role="tablist">
+            <button class="seg-btn is-active" data-mode="classic" role="tab">Clásico</button>
+            <button class="seg-btn" data-mode="infiltrate" role="tab">Infiltrado</button>
+          </div>
+          <p class="muted small" id="modeDesc">El impostor no sabe la palabra y debe disimular.</p>
+        </div>
+
+        <div class="card" id="categoriesCard">
+          <div class="card-row">
+            <div>
+              <h3>Categorías</h3>
+              <p class="muted small" id="catCount">—</p>
+            </div>
+            <div class="cat-actions">
+              <button class="chip-btn" id="selectAllCats">Todas</button>
+              <button class="chip-btn" id="selectNoneCats">Ninguna</button>
+            </div>
+          </div>
+          <div class="chips" id="categoriesGrid"></div>
+        </div>
+
+        <div class="card">
+          <h3>Opciones</h3>
+
+          <label class="switch-row" id="rowHint">
+            <span>
+              <strong>Pista para el impostor</strong>
+              <small class="muted">Solo ve el nombre de la categoría</small>
+            </span>
+            <input type="checkbox" id="optHint" class="switch" checked />
+          </label>
+
+          <label class="switch-row">
+            <span>
+              <strong>Orden de revelado aleatorio</strong>
+              <small class="muted">Nadie sabe a quién le toca después</small>
+            </span>
+            <input type="checkbox" id="optShuffle" class="switch" checked />
+          </label>
+
+          <label class="switch-row" id="rowTimer">
+            <span>
+              <strong>Temporizador de debate</strong>
+              <small class="muted">Cuenta atrás para dar pistas</small>
+            </span>
+            <input type="checkbox" id="optTimer" class="switch" checked />
+          </label>
+
+          <div class="sub-row is-hidden" id="timerRow">
+            <span class="muted">Duración del debate</span>
+            <div class="stepper stepper-sm">
+              <button class="stepper-btn" id="timerMinus" aria-label="Menos tiempo">−</button>
+              <output class="stepper-value" id="timerValue">2:00</output>
+              <button class="stepper-btn" id="timerPlus" aria-label="Más tiempo">+</button>
+            </div>
+          </div>
+
+          <label class="switch-row">
+            <span>
+              <strong>Votación en la app</strong>
+              <small class="muted">Voto secreto pasando el móvil</small>
+            </span>
+            <input type="checkbox" id="optVote" class="switch" checked />
+          </label>
+
+          <label class="switch-row">
+            <span>
+              <strong>Sonidos y vibración</strong>
+              <small class="muted">Avisos y feedback al tocar</small>
+            </span>
+            <input type="checkbox" id="optSound" class="switch" checked />
+          </label>
+        </div>
+
+        <div class="spacer"></div>
+      </div>
+
+      <div class="sticky-bottom">
+        <button class="btn btn-primary btn-xl" id="startGame">Empezar partida</button>
+      </div>
+    </section>
+
+    <!-- ============================= REVEAL ============================= -->
+    <section class="screen" id="screen-reveal" data-screen="reveal">
+      <header class="topbar topbar-transparent">
+        <button class="icon-btn" id="revealExit" aria-label="Salir">✕</button>
+        <span id="revealProgress" class="progress-label">Jugador 1 de 6</span>
+        <span class="topbar-spacer"></span>
+      </header>
+      <div class="reveal-stage">
+
+        <div class="handoff" id="revealHandoff">
+          <p class="handoff-kicker">Pasa el móvil a</p>
+          <h2 class="handoff-name" id="handoffName">Jugador 1</h2>
+          <p class="handoff-note" id="handoffNote">Que nadie más mire la pantalla 🤫</p>
+          <button class="btn btn-primary btn-xl" id="revealButton">Ver mi palabra</button>
+        </div>
+
+        <div class="reveal-card is-hidden" id="revealCard">
+          <div class="reveal-card-inner">
+            <p class="reveal-role" id="cardRole">Tu palabra es</p>
+            <p class="reveal-word" id="cardWord">—</p>
+            <p class="reveal-hint" id="cardHint"></p>
+          </div>
+          <button class="btn btn-primary btn-xl" id="hideButton">Ocultar y pasar</button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================= DISCUSSION ============================= -->
+    <section class="screen" id="screen-discussion" data-screen="discussion">
+      <header class="topbar">
+        <button class="icon-btn" id="discExit" aria-label="Salir">✕</button>
+        <h2>Debate</h2>
+        <span class="topbar-spacer"></span>
+      </header>
+
+      <div class="scroll center">
+        <p class="lead" id="discLead">Cada jugador da una pista sobre su palabra… sin decirla.</p>
+
+        <div class="timer-wrap is-hidden" id="discTimerWrap">
+          <div class="timer-ring" id="discRing"><span id="discTime">2:00</span></div>
+          <button class="chip-btn" id="timerToggle">Pausar</button>
+        </div>
+
+        <div class="card align-left">
+          <h3>Orden para hablar</h3>
+          <ol class="speak-order" id="speakOrder"></ol>
+        </div>
+
+        <div class="info-box">
+          <strong id="impostorInfoTitle">Hay 1 impostor entre vosotros.</strong>
+          <span class="muted" id="impostorInfoText"></span>
+        </div>
+
+        <div class="spacer"></div>
+      </div>
+
+      <div class="sticky-bottom">
+        <button class="btn btn-primary btn-xl" id="btnToVote">Ir a votar</button>
+        <button class="btn btn-ghost" id="btnToResult">Saltar a la solución</button>
+      </div>
+    </section>
+
+    <!-- ============================= VOTE ============================= -->
+    <section class="screen" id="screen-vote" data-screen="vote">
+      <header class="topbar topbar-transparent">
+        <button class="icon-btn" id="voteExit" aria-label="Salir">✕</button>
+        <span class="progress-label" id="voteStep">Votación 1 de 6</span>
+        <span class="topbar-spacer"></span>
+      </header>
+
+      <div class="scroll">
+        <div class="vote-head">
+          <p class="handoff-kicker" id="voteKicker">Pasa el móvil a</p>
+          <h2 class="handoff-name" id="voteName">Jugador 1</h2>
+          <p class="muted" id="voteQuestion">¿Quién crees que es el impostor?</p>
+        </div>
+        <div class="vote-grid" id="voteGrid"></div>
+        <div class="spacer"></div>
+      </div>
+
+      <div class="sticky-bottom">
+        <button class="btn btn-primary btn-xl" id="voteConfirm" disabled>Confirmar voto</button>
+      </div>
+    </section>
+
+    <!-- ============================= RESULT ============================= -->
+    <section class="screen" id="screen-result" data-screen="result">
+      <div class="scroll center result-screen">
+        <div class="result-emoji" id="resultEmoji">🕵️</div>
+        <h2 class="result-title" id="resultTitle">¡Resultados!</h2>
+        <p class="result-sub" id="resultSub"></p>
+
+        <div class="result-cards">
+          <div class="result-card impostor-card">
+            <span class="result-card-label" id="impostorCardLabel">Impostor</span>
+            <span class="result-card-value" id="resultImpostors">—</span>
+          </div>
+          <div class="result-card">
+            <span class="result-card-label" id="wordCardLabel">La palabra era</span>
+            <span class="result-card-value" id="resultWord">—</span>
+          </div>
+          <div class="result-card is-hidden" id="decoyCard">
+            <span class="result-card-label">Palabra del impostor</span>
+            <span class="result-card-value" id="resultDecoy">—</span>
+          </div>
+        </div>
+
+        <div class="info-box is-hidden" id="voteOutcome"></div>
+
+        <div class="spacer"></div>
+      </div>
+
+      <div class="sticky-bottom">
+        <button class="btn btn-primary btn-xl" id="btnAgain">Otra ronda (mismos jugadores)</button>
+        <button class="btn btn-ghost" id="btnNewGame">Cambiar ajustes</button>
+      </div>
+    </section>
+
+    <!-- ============================= CUSTOM WORDS ============================= -->
+    <section class="screen" id="screen-custom" data-screen="custom">
+      <header class="topbar">
+        <button class="icon-btn" data-back="home" aria-label="Volver">←</button>
+        <h2>Mis palabras</h2>
+        <span class="topbar-spacer"></span>
+      </header>
+
+      <div class="scroll">
+        <div class="card">
+          <h3>Crear una categoría</h3>
+          <input type="text" id="customName" class="text-input" placeholder="Nombre (p. ej. Mi familia)" maxlength="40" />
+          <textarea id="customWords" class="text-input" rows="4" placeholder="Escribe o pega una palabra por línea, o separadas por comas"></textarea>
+          <button class="btn btn-primary" id="btnAddCustom">Añadir categoría</button>
+          <p class="muted small">Se guardan en este dispositivo y se usan como una categoría más.</p>
+        </div>
+
+        <div class="card">
+          <h3>Mis categorías</h3>
+          <div id="customList" class="custom-list"></div>
+        </div>
+
+        <div class="spacer"></div>
+      </div>
+    </section>
+
+    <!-- ============================= MODALS ============================= -->
+    <div class="modal is-hidden" id="modalRules">
+      <div class="modal-card">
+        <h2>Cómo jugar</h2>
+        <div class="modal-body">
+          <p><strong>1.</strong> Elegid cuántos jugáis y empezad la partida.</p>
+          <p><strong>2.</strong> Pasados el móvil, cada uno ve en secreto lo que le ha tocado: la <strong>palabra</strong> o, si es el <strong>impostor</strong>, un aviso (o una palabra parecida en modo Infiltrado).</p>
+          <p><strong>3.</strong> Por turnos, cada jugador dice <strong>una pista</strong> relacionada con su palabra, sin decirla y sin ser demasiado obvio.</p>
+          <p><strong>4.</strong> El impostor debe disimular y descubrir la palabra; los demás tienen que pillarle.</p>
+          <p><strong>5.</strong> Votad quién creéis que es el impostor y revelad la solución.</p>
+          <hr>
+          <p class="muted"><strong>Clásico:</strong> el impostor no tiene palabra, así que debe improvisar.</p>
+          <p class="muted"><strong>Infiltrado:</strong> el impostor recibe una palabra parecida a la vuestra y debe deducir cuál es la verdadera.</p>
+          <p class="muted"><strong>Consejo:</strong> gana el que dé pistas ingeniosas. Si eres el impostor, imita el estilo de los demás.</p>
+        </div>
+        <button class="btn btn-primary btn-block" id="btnCloseRules">Entendido</button>
+      </div>
+    </div>
+
+    <div class="toast is-hidden" id="toast"></div>
+
+  </div>
+
+  <script src="js/words.js"></script>
+  <script src="js/pairs.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
