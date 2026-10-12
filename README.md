@@ -36,6 +36,7 @@ La lista de pistas también funciona como palabras jugables: la categoría
 - Pista relacionada para el impostor (opcional).
 - Temporizador de debate con aviso sonoro (desactivado por defecto).
 - El debate empieza por un **jugador aleatorio** cada ronda.
+- La **categoría no se repite** en rondas consecutivas.
 - El móvil se pasa **en orden (1, 2, 3…)** para ver lo que te toca.
 - Instalable como app (PWA) y funciona sin conexión.
 

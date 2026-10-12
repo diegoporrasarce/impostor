@@ -234,21 +234,29 @@
   }
 
   /* ---------------- Selección de palabras ---------------- */
+  var lastCategoryId = null;
   function pickWord(needClue) {
     var pool = [];
     getActiveCategories().forEach(function (c) {
-      c.words.forEach(function (w) { pool.push({ w: w, cat: c.name }); });
+      c.words.forEach(function (w) { pool.push({ w: w, cat: c.name, catId: c.id }); });
     });
     if (!pool.length) return null;
+
     var candidates = pool;
     if (needClue) {
       var withClue = pool.filter(function (p) { return cluesFor(p.w).length > 0; });
       if (withClue.length) candidates = withClue;
     }
+    // No repetir la categoría de la ronda anterior (si hay alternativas).
+    if (lastCategoryId) {
+      var others = candidates.filter(function (p) { return p.catId !== lastCategoryId; });
+      if (others.length) candidates = others;
+    }
     var available = candidates.filter(function (p) { return !usedWords[p.w]; });
     if (!available.length) { usedWords = {}; available = candidates; }
     var chosen = available[randInt(available.length)];
     usedWords[chosen.w] = true;
+    lastCategoryId = chosen.catId;
     return chosen;
   }
   function pickClue(word) {
@@ -279,6 +287,7 @@
       word: chosen.w,
       decoy: decoy,
       categoryName: chosen.cat,
+      categoryId: chosen.catId,
       impostorSet: impostorSet,
       impostorList: impostorList,
       revealOrder: range(1, settings.players),

@@ -235,7 +235,46 @@ ok(byId("catCount").textContent.indexOf("0 palabras") !== -1, "con «Ninguna» q
 click("selectAllCats");
 ok(byId("catCount").textContent.indexOf("Todas") !== -1, "con «Todas» vuelven a activarse");
 
-/* -------------------- 6. Persistencia -------------------- */
+/* -------------------- 6. No repetir categoría -------------------- */
+console.log("\n— No repetir categoría —");
+click("selectNoneCats");
+function chipByName(name) {
+  return byId("categoriesGrid").children.find((c) => c.children[1] && c.children[1].textContent === name);
+}
+chipByName("Deportes").dispatch("click");
+chipByName("Arte y cultura").dispatch("click");
+ok(byId("catCount").textContent.indexOf("2 de") !== -1, "quedan 2 categorías activas");
+
+const w2c = {};
+for (const cat of window.IMPOSTOR_DATA.categories) {
+  if (cat.id !== "deportes" && cat.id !== "arte") continue;
+  for (const w of cat.words) (w2c[w] = w2c[w] || new Set()).add(cat.id);
+}
+function playRound() {
+  let civil = null;
+  for (let i = 0; i < 8; i++) {
+    click("revealButton");
+    const w = byId("cardWord").textContent;
+    if (w !== "IMPOSTOR") civil = w;
+    click("hideButton");
+  }
+  click("btnSolve");
+  const set = w2c[civil];
+  return set && set.size === 1 ? [...set][0] : null;
+}
+const cats = [];
+click("startGame");
+for (let r = 0; r < 10; r++) {
+  if (r > 0) click("btnAgain");
+  cats.push(playRound());
+}
+const valid = cats.filter(Boolean);
+ok(valid.length >= 8, "las rondas salen de las 2 categorías elegidas (" + valid.length + "/10)");
+let repeats = 0;
+for (let i = 1; i < valid.length; i++) if (valid[i - 1] === valid[i]) repeats++;
+ok(repeats === 0, "no se repite categoría en rondas consecutivas (" + valid.join(" → ") + ")");
+
+/* -------------------- 7. Persistencia -------------------- */
 console.log("\n— Persistencia —");
 ok(!!store["impostor.settings.v1"], "los ajustes se guardan en localStorage");
 
