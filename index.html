@@ -46,11 +46,6 @@
           <button class="btn btn-primary btn-xl" id="btnPlay">
             <span>Jugar</span>
           </button>
-
-          <div class="home-row">
-            <button class="btn btn-ghost" id="btnCustom">✏️ Mis palabras</button>
-            <button class="btn btn-ghost" id="btnRules">❓ Cómo jugar</button>
-          </div>
         </div>
 
         <div class="home-footer">
@@ -73,7 +68,7 @@
           <div class="card-row">
             <div>
               <h3>¿Cuántos juegan?</h3>
-              <p class="muted small">Entre 3 y 16 personas</p>
+              <p class="muted small">máx: 16</p>
             </div>
             <div class="stepper">
               <button class="stepper-btn" id="playersMinus" aria-label="Menos jugadores">−</button>
@@ -85,20 +80,14 @@
 
         <div class="card">
           <div class="card-row">
-            <div>
-              <h3>Nombres</h3>
-              <p class="muted small" id="namesSummary">Jugador 1, Jugador 2…</p>
-            </div>
+            <h3>Nombres</h3>
             <button class="chip-btn" id="btnEditNames" type="button">Editar</button>
           </div>
         </div>
 
         <div class="card">
           <div class="card-row">
-            <div>
-              <h3>Impostores</h3>
-              <p class="muted small" id="impostorsNote">1 impostor</p>
-            </div>
+            <h3>Impostores</h3>
             <div class="stepper">
               <button class="stepper-btn" id="impostorsMinus" aria-label="Menos impostores">−</button>
               <output class="stepper-value" id="impostorsValue">1</output>
@@ -302,32 +291,6 @@
       </div>
     </section>
 
-    <!-- ============================= CUSTOM WORDS ============================= -->
-    <section class="screen" id="screen-custom" data-screen="custom">
-      <header class="topbar">
-        <button class="icon-btn" data-back="home" aria-label="Volver">←</button>
-        <h2>Mis palabras</h2>
-        <span class="topbar-spacer"></span>
-      </header>
-
-      <div class="scroll">
-        <div class="card">
-          <h3>Crear una categoría</h3>
-          <input type="text" id="customName" class="text-input" placeholder="Nombre (p. ej. Mi familia)" maxlength="40" />
-          <textarea id="customWords" class="text-input" rows="4" placeholder="Escribe o pega una palabra por línea, o separadas por comas"></textarea>
-          <button class="btn btn-primary" id="btnAddCustom">Añadir categoría</button>
-          <p class="muted small">Se guardan en este dispositivo y se usan como una categoría más.</p>
-        </div>
-
-        <div class="card">
-          <h3>Mis categorías</h3>
-          <div id="customList" class="custom-list"></div>
-        </div>
-
-        <div class="spacer"></div>
-      </div>
-    </section>
-
     <!-- ============================= MODALS ============================= -->
     <div class="modal is-hidden" id="modalNames">
       <div class="modal-card">
@@ -337,24 +300,6 @@
         </div>
         <button class="btn btn-primary btn-block" id="btnSaveNames">Guardar nombres</button>
         <button class="btn btn-ghost btn-block" id="btnCancelNames">Cancelar</button>
-      </div>
-    </div>
-
-    <div class="modal is-hidden" id="modalRules">
-      <div class="modal-card">
-        <h2>Cómo jugar</h2>
-        <div class="modal-body">
-          <p><strong>1.</strong> Elegid cuántos jugáis y empezad la partida.</p>
-          <p><strong>2.</strong> Pasados el móvil, cada uno ve en secreto lo que le ha tocado: la <strong>palabra</strong> o, si es el <strong>impostor</strong>, un aviso (o una palabra parecida en modo Infiltrado).</p>
-          <p><strong>3.</strong> Por turnos, cada jugador dice <strong>una pista</strong> relacionada con su palabra, sin decirla y sin ser demasiado obvio.</p>
-          <p><strong>4.</strong> El impostor debe disimular y descubrir la palabra; los demás tienen que pillarle.</p>
-          <p><strong>5.</strong> Votad quién creéis que es el impostor y revelad la solución.</p>
-          <hr>
-          <p class="muted"><strong>Clásico:</strong> el impostor no tiene palabra, así que debe improvisar.</p>
-          <p class="muted"><strong>Infiltrado:</strong> el impostor recibe una palabra parecida a la vuestra y debe deducir cuál es la verdadera.</p>
-          <p class="muted"><strong>Consejo:</strong> gana el que dé pistas ingeniosas. Si eres el impostor, imita el estilo de los demás.</p>
-        </div>
-        <button class="btn btn-primary btn-block" id="btnCloseRules">Entendido</button>
       </div>
     </div>
 

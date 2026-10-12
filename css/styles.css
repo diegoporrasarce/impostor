@@ -179,7 +179,7 @@ h3 { font-size: 1rem; font-weight: 700; }
   justify-content: space-between;
   gap: 12px;
 }
-.card h3 + p { margin-top: -4px; }
+.card h3 + p { margin-top: 5px; }
 
 /* ---------- Stepper ---------- */
 .stepper {
@@ -370,7 +370,6 @@ h3 { font-size: 1rem; font-weight: 700; }
 }
 .home-sub { text-align: center; color: var(--muted); line-height: 1.5; }
 .home-actions { display: flex; flex-direction: column; gap: 12px; }
-.home-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .home-footer { text-align: center; display: flex; flex-direction: column; gap: 4px; }
 
 /* ---------- REVEAL ---------- */
@@ -539,23 +538,6 @@ h3 { font-size: 1rem; font-weight: 700; }
 }
 .result-card.good { border-color: rgba(52, 211, 153, 0.5); background: rgba(52, 211, 153, 0.12); }
 .result-card.bad { border-color: rgba(251, 113, 133, 0.5); background: rgba(251, 113, 133, 0.12); }
-
-/* ---------- CUSTOM ---------- */
-.custom-list { display: flex; flex-direction: column; gap: 10px; }
-.custom-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 12px 14px;
-  background: rgba(0, 0, 0, 0.2);
-}
-.custom-item-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.custom-item-name { font-weight: 700; }
-.custom-item-words { color: var(--muted); font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.custom-empty { color: var(--muted); font-size: 0.92rem; }
 
 /* ---------- Nombres de jugadores ---------- */
 .name-list { display: flex; flex-direction: column; gap: 10px; }

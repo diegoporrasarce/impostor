@@ -25,7 +25,7 @@ recibe una palabra distinta (o ninguna) y el resto tiene que descubrir quién es
 ### Extras
 
 - **Nombres de jugadores**: poned vuestros nombres reales.
-- 26 categorías temáticas + **categorías propias** ilimitadas.
+- 26 categorías temáticas.
 - De 1 hasta tantos impostores como jugadores haya.
 - Pista de categoría para el impostor (opcional).
 - Temporizador de debate con aviso sonoro.

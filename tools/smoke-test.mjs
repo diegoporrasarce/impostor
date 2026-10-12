@@ -163,7 +163,6 @@ nameInputs[0].value = "Marta";
 nameInputs[1].value = "Bruno";
 click("btnSaveNames");
 ok(byId("modalNames").classList.contains("is-hidden"), "se cierra al guardar");
-ok(byId("namesSummary").textContent.indexOf("Marta, Bruno") === 0, "el resumen muestra los nombres");
 
 /* -------------------- 3. Partida clásica (orden 1→N) -------------------- */
 console.log("\n— Modo clásico —");
@@ -217,19 +216,15 @@ ok(activeScreen() === "result", "salta al resultado");
 ok(!byId("decoyCard").classList.contains("is-hidden"), "muestra la palabra del impostor");
 ok(byId("resultDecoy").textContent.length > 0, "la palabra del impostor no está vacía");
 
-/* -------------------- 5. Categorías personalizadas -------------------- */
-console.log("\n— Palabras personalizadas —");
-byId("customName").value = "Mi familia";
-byId("customWords").value = "Ana, Bruno, Carla\nDani; Eva";
-click("btnAddCustom");
-ok(byId("customList").children.length === 1, "aparece la categoría personalizada");
+/* -------------------- 5. Categorías -------------------- */
+console.log("\n— Categorías —");
 const chipCount = byId("categoriesGrid").children.length;
-ok(chipCount === 27, "el selector incluye 26 categorías + 1 propia (" + chipCount + ")");
+ok(chipCount === 26, "el selector tiene las 26 categorías (" + chipCount + ")");
+ok(byId("catCount").textContent.indexOf("palabras") !== -1, "muestra el total de palabras seleccionadas");
 
 /* -------------------- 6. Persistencia -------------------- */
 console.log("\n— Persistencia —");
 ok(!!store["impostor.settings.v1"], "los ajustes se guardan en localStorage");
-ok(!!store["impostor.custom.v1"], "las palabras propias se guardan en localStorage");
 
 /* -------------------- resumen -------------------- */
 console.log("\n" + (failures === 0 ? "TODO OK ✔" : failures + " FALLOS ✗"));

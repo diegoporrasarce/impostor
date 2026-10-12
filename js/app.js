@@ -39,17 +39,9 @@
     if (!Array.isArray(settings.names)) settings.names = [];
     while (settings.names.length < settings.players) settings.names.push("");
   }
-  function updateNamesSummary() {
-    ensureNamesLength();
-    var parts = [];
-    for (var i = 1; i <= settings.players; i++) parts.push(nameFor(i));
-    var shown = parts.slice(0, 5).join(", ") + (parts.length > 5 ? " …" : "");
-    $("#namesSummary").textContent = shown;
-  }
 
   /* ---------------- Estado y persistencia ---------------- */
   var LS_SETTINGS = "impostor.settings.v1";
-  var LS_CUSTOM = "impostor.custom.v1";
 
   var settings = {
     players: 6,
@@ -63,7 +55,6 @@
     vote: true,
     sound: true
   };
-  var custom = [];
   var game = null;
   var usedWords = {};
   var usedPairs = {};
@@ -74,13 +65,6 @@
     try {
       var raw = localStorage.getItem(LS_SETTINGS);
       if (raw) Object.assign(settings, JSON.parse(raw));
-    } catch (e) {}
-  }
-  function saveCustom() { try { localStorage.setItem(LS_CUSTOM, JSON.stringify(custom)); } catch (e) {} }
-  function loadCustom() {
-    try {
-      var raw = localStorage.getItem(LS_CUSTOM);
-      if (raw) { var parsed = JSON.parse(raw); if (Array.isArray(parsed)) custom = parsed; }
     } catch (e) {}
   }
 
@@ -134,9 +118,7 @@
 
   /* ---------------- Categorías ---------------- */
   function getAllCategories() {
-    var base = DATA.categories.map(function (c) { return { id: c.id, name: c.name, emoji: c.emoji, words: c.words, custom: false }; });
-    var mine = custom.map(function (c) { return { id: c.id, name: c.name, emoji: "⭐", words: c.words, custom: true }; });
-    return base.concat(mine);
+    return DATA.categories.map(function (c) { return { id: c.id, name: c.name, emoji: c.emoji, words: c.words }; });
   }
   function selectedIds() {
     var all = getAllCategories();
@@ -167,7 +149,6 @@
       var em = document.createElement("span"); em.className = "chip-emoji"; em.textContent = cat.emoji || "⭐";
       var nm = document.createElement("span"); nm.textContent = cat.name;
       b.appendChild(em); b.appendChild(nm);
-      if (cat.custom) { var st = document.createElement("span"); st.className = "chip-star"; st.textContent = "★"; b.appendChild(st); }
       b.addEventListener("click", function () { toggleCategory(cat.id); });
       grid.appendChild(b);
     });
@@ -185,9 +166,8 @@
   }
   function updateHomeCount() {
     var words = DATA.categories.reduce(function (n, c) { return n + c.words.length; }, 0);
-    words += custom.reduce(function (n, c) { return n + c.words.length; }, 0);
     $("#homeWordCount").textContent = words.toLocaleString("es-ES") + " palabras · " +
-      getAllCategories().length + " categorías · " + PAIRS.length + " parejas";
+      DATA.categories.length + " categorías · " + PAIRS.length + " parejas";
   }
 
   /* ---------------- Ajustes en pantalla ---------------- */
@@ -206,15 +186,11 @@
     settings.impostors = clamp(settings.impostors, 1, max);
     $("#playersValue").textContent = settings.players;
     $("#impostorsValue").textContent = settings.impostors;
-    $("#impostorsNote").textContent = settings.impostors === 1
-      ? "1 impostor"
-      : settings.impostors + " impostores";
     $("#impostorsMinus").disabled = settings.impostors <= 1;
     $("#impostorsPlus").disabled = settings.impostors >= max;
     $("#timerValue").textContent = formatTime(settings.timerSeconds);
     $("#timerRow").classList.toggle("is-hidden", !settings.timer);
     ensureNamesLength();
-    updateNamesSummary();
   }
   function updateSwitchesUI() {
     $("#optHint").checked = settings.hint;
@@ -524,68 +500,6 @@
     showScreen("result");
   }
 
-  /* ---------------- Categorías personalizadas ---------------- */
-  function renderCustom() {
-    var list = $("#customList");
-    list.innerHTML = "";
-    if (!custom.length) {
-      var empty = document.createElement("p");
-      empty.className = "custom-empty";
-      empty.textContent = "Todavía no has creado ninguna categoría. ¡Añade tus propias palabras!";
-      list.appendChild(empty);
-      return;
-    }
-    custom.forEach(function (c) {
-      var item = document.createElement("div");
-      item.className = "custom-item";
-      var info = document.createElement("div");
-      info.className = "custom-item-info";
-      var nm = document.createElement("span");
-      nm.className = "custom-item-name";
-      nm.textContent = c.name;
-      var wd = document.createElement("span");
-      wd.className = "custom-item-words";
-      wd.textContent = c.words.length + " palabras · " + c.words.slice(0, 4).join(", ");
-      info.appendChild(nm); info.appendChild(wd);
-      var del = document.createElement("button");
-      del.type = "button";
-      del.className = "chip-btn";
-      del.textContent = "Borrar";
-      del.addEventListener("click", function () {
-        if (window.confirm('¿Borrar la categoría "' + c.name + '"?')) removeCustom(c.id);
-      });
-      item.appendChild(info); item.appendChild(del);
-      list.appendChild(item);
-    });
-  }
-  function addCustom() {
-    var name = $("#customName").value.trim();
-    var raw = $("#customWords").value;
-    var words = raw.split(/[\n,;]+/).map(function (w) { return w.trim(); }).filter(Boolean);
-    var uniq = [];
-    words.forEach(function (w) { if (uniq.indexOf(w) === -1) uniq.push(w); });
-    if (!name) { toast("Pon un nombre a la categoría"); return; }
-    if (!uniq.length) { toast("Añade al menos una palabra"); return; }
-    var id = "custom_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-    custom.push({ id: id, name: name, words: uniq });
-    if (Array.isArray(settings.categories)) settings.categories.push(id);
-    saveCustom(); saveSettings();
-    $("#customName").value = "";
-    $("#customWords").value = "";
-    renderCustom(); renderCategories(); updateHomeCount();
-    toast(uniq.length + " palabras añadidas");
-    beep(700, 0.09);
-  }
-  function removeCustom(id) {
-    custom = custom.filter(function (c) { return c.id !== id; });
-    if (Array.isArray(settings.categories)) {
-      settings.categories = settings.categories.filter(function (x) { return x !== id; });
-    }
-    saveCustom(); saveSettings();
-    renderCustom(); renderCategories(); updateHomeCount();
-    toast("Categoría borrada");
-  }
-
   /* ---------------- Nombres (modal) ---------------- */
   var nameInputs = [];
   function openNamesModal() {
@@ -623,7 +537,6 @@
       if (!isNaN(i)) settings.names[i] = (inp.value || "").trim();
     });
     saveSettings();
-    updateNamesSummary();
     $("#modalNames").classList.add("is-hidden");
     beep(700, 0.08);
     toast("Nombres guardados");
@@ -669,10 +582,6 @@
       updateSetupUI();
       showScreen("setup");
     });
-    $("#btnCustom").addEventListener("click", function () { renderCustom(); showScreen("custom"); });
-    $("#btnRules").addEventListener("click", function () { $("#modalRules").classList.remove("is-hidden"); });
-    $("#btnCloseRules").addEventListener("click", function () { $("#modalRules").classList.add("is-hidden"); });
-    $("#modalRules").addEventListener("click", function (e) { if (e.target === this) this.classList.add("is-hidden"); });
 
     $$("[data-back]").forEach(function (b) {
       b.addEventListener("click", function () {
@@ -729,10 +638,6 @@
     $("#btnNewGame").addEventListener("click", function () { updateSetupUI(); showScreen("setup"); });
   }
 
-  function bindCustom() {
-    $("#btnAddCustom").addEventListener("click", addCustom);
-  }
-
   function bindNames() {
     $("#btnEditNames").addEventListener("click", openNamesModal);
     $("#btnSaveNames").addEventListener("click", saveNames);
@@ -753,17 +658,14 @@
   /* ---------------- Arranque ---------------- */
   function init() {
     loadSettings();
-    loadCustom();
     bindSetup();
     bindNavigation();
     bindReveal();
     bindDiscussion();
     bindVote();
     bindResult();
-    bindCustom();
     bindNames();
     renderCategories();
-    renderCustom();
     updateSetupUI();
     updateHomeCount();
     setupServiceWorker();
