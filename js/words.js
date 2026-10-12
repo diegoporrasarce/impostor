@@ -8,24 +8,22 @@ window.IMPOSTOR_DATA = {
 
     { id: "comida", name: "Comida y bebida", emoji: "🍽️", words: [
       "Pizza", "Hamburguesa", "Paella", "Tortilla de patatas", "Sushi", "Tacos", "Lasaña",
-      "Espaguetis a la boloñesa", "Macarrones", "Croquetas", "Gazpacho", "Salmorejo",
-      "Cocido madrileño", "Fabada asturiana", "Arroz con leche", "Churros con chocolate",
+      "Espaguetis a la boloñesa", "Macarrones", "Croquetas", "Gazpacho",
+      "Cocido", "Fabada", "Arroz con leche",
       "Flan", "Croissant", "Bocadillo de jamón", "Sándwich mixto", "Ensaladilla rusa",
-      "Patatas bravas", "Tortilla francesa", "Empanada gallega", "Ceviche", "Asado argentino",
-      "Chorizo", "Jamón ibérico", "Queso manchego", "Crema catalana", "Tarta de Santiago",
-      "Torrijas", "Migas", "Pisto", "Callos", "Pulpo a la gallega", "Boquerones en vinagre",
+      "Patatas bravas", "Tortilla francesa", "Empanada",
+      "Chorizo", "Jamón ibérico", "Queso",
+      "Torrijas", "Migas", "Callos",
       "Albóndigas", "Estofado", "Lentejas", "Sopa de fideos", "Ramen", "Wok de verduras",
-      "Falafel", "Kebab", "Curry", "Hummus", "Nachos", "Burrito", "Quesadilla", "Guacamole",
+      "Kebab", "Curry", "Hummus", "Nachos", "Burrito", "Quesadilla", "Guacamole",
       "Pollo asado", "Chuletón", "Chuletillas de cordero", "Merluza a la romana",
-      "Bacalao al pil-pil", "Sardinas asadas", "Mejillones", "Gambas al ajillo",
-      "Calamares a la romana", "Calzone", "Focaccia", "Risotto", "Raviolis", "Ñoquis",
-      "Cuscús", "Pad thai", "Poke bowl", "Salchichas", "Bacon", "Huevos fritos",
-      "Tortilla de queso", "Puré de patatas", "Ensalada César", "Crema de calabaza",
-      "Gelatina", "Natillas", "Helado de vainilla", "Chocolate con churros", "Gofre",
-      "Tortitas con sirope", "Mermelada", "Mantequilla", "Aceite de oliva", "Vinagre",
-      "Salsa de tomate", "Mayonesa", "Kétchup", "Mostaza", "Miel", "Azúcar", "Sal",
-      "Café con leche", "Zumo de naranja", "Batido de chocolate", "Agua con gas",
-      "Refresco de cola", "Cerveza", "Vino tinto", "Sangría", "Sidra", "Cava", "Champán"
+      "Sardinas", "Mejillones", "Gambas al ajillo", "Focaccia",
+      "Cuscús", "Poke", "Salchichas", "Bacon", "Huevos fritos",
+      "Gelatina", "Natillas", "Helado", "Churros", "Gofre",
+      "Mermelada", "Mantequilla", "Aceite", "Vinagre", 
+      "Mayonesa", "Kétchup", "Mostaza", "Miel", "Azúcar", "Sal",
+      "Café", "Zumo de naranja", "Batido de chocolate",
+      "Coca-Cola", "Cerveza", "Vino tinto", "Sangría", "Sidra", "Cava", "Champán"
     ]},
 
     { id: "frutas", name: "Frutas y verduras", emoji: "🍎", words: [
