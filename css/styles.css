@@ -138,6 +138,7 @@ h3 { font-size: 1rem; font-weight: 700; }
 .btn:active { transform: scale(0.97); }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
 .btn-block { width: 100%; }
+a.btn { display: flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box; }
 
 .btn-primary {
   background: linear-gradient(135deg, var(--accent), #6366f1 45%, var(--accent-2));
