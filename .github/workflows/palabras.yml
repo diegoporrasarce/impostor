@@ -1,0 +1,106 @@
+# Añade al juego las palabras sugeridas con el formulario «Sugerir palabras».
+# - Si el issue lo abre el dueño del repositorio, se añaden al momento.
+# - Si lo abre otra persona, esperan a que el dueño comente «ok»
+#   (o «sí», «vale», «aprobado») o le ponga la etiqueta «aprobado».
+name: Añadir palabras
+
+on:
+  issues:
+    types: [opened, labeled]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: palabras
+  cancel-in-progress: false
+
+jobs:
+  procesar:
+    if: >-
+      github.event.issue.pull_request == null &&
+      github.event.issue.state == 'open' &&
+      contains(github.event.issue.body, '### Palabras')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Decidir qué hacer
+        id: decide
+        env:
+          EVENT: ${{ github.event_name }}
+          ACTION: ${{ github.event.action }}
+          OWNER: ${{ github.repository_owner }}
+          AUTHOR: ${{ github.event.issue.user.login }}
+          SENDER: ${{ github.event.sender.login }}
+          LABEL: ${{ github.event.label.name }}
+          COMMENT: ${{ github.event.comment.body }}
+        run: |
+          decision=skip
+          comment=$(printf '%s' "$COMMENT" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:].!' )
+          if [ "$EVENT" = "issues" ] && [ "$ACTION" = "opened" ]; then
+            if [ "$AUTHOR" = "$OWNER" ]; then decision=apply; else decision=pending; fi
+          elif [ "$EVENT" = "issues" ] && [ "$ACTION" = "labeled" ]; then
+            if [ "$LABEL" = "aprobado" ] && [ "$SENDER" = "$OWNER" ]; then decision=apply; fi
+          elif [ "$EVENT" = "issue_comment" ] && [ "$SENDER" = "$OWNER" ]; then
+            case "$comment" in ok|okay|si|sí|vale|aprobado|aprobar|aprobadas) decision=apply ;; esac
+          fi
+          echo "decision=$decision" >> "$GITHUB_OUTPUT"
+          echo "Decisión: $decision"
+
+      - name: Avisar de que queda pendiente
+        if: steps.decide.outputs.decision == 'pending'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
+        run: |
+          gh issue comment "$NUMBER" --body "¡Gracias por la sugerencia! 🙌 Las palabras se añadirán en cuanto se aprueben."
+
+      - uses: actions/checkout@v4
+        if: steps.decide.outputs.decision == 'apply'
+
+      - uses: actions/setup-node@v4
+        if: steps.decide.outputs.decision == 'apply'
+        with:
+          node-version: 20
+
+      - name: Añadir las palabras
+        id: add
+        if: steps.decide.outputs.decision == 'apply'
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          SUMMARY_FILE: ${{ runner.temp }}/resumen.md
+        run: node tools/add-words.mjs
+
+      - name: Publicar
+        if: steps.add.outputs.result == 'changed'
+        env:
+          NUMBER: ${{ github.event.issue.number }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add js/words.js js/clues.js sw.js
+          git commit -m "Añadir palabras sugeridas (#$NUMBER)"
+          git pull --rebase
+          git push
+
+      - name: Responder y cerrar
+        if: steps.add.outputs.result == 'changed' || steps.add.outputs.result == 'nothing'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
+        run: |
+          gh issue comment "$NUMBER" --body-file "$RUNNER_TEMP/resumen.md"
+          gh issue close "$NUMBER" --reason completed
+
+      - name: Avisar del error
+        if: steps.add.outputs.result == 'error'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
+        run: |
+          gh issue comment "$NUMBER" --body-file "$RUNNER_TEMP/resumen.md"

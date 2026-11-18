@@ -42,6 +42,23 @@ La lista de pistas también funciona como palabras jugables: la categoría
 
 ---
 
+## 💡 Sugerir palabras
+
+Cualquiera con cuenta de GitHub puede proponer palabras con el botón
+**«Sugerir palabras»** del juego (o en *Issues → New issue → Sugerir palabras*):
+se elige la categoría, se escriben las palabras y, si se quiere, sus pistas.
+
+- Si el issue lo abre el dueño del repositorio, las palabras se añaden solas.
+- Si lo abre otra persona, se añaden cuando el dueño comenta **«ok»** (o «sí»,
+  «vale», «aprobado») o le pone la etiqueta `aprobado`. Para rechazarlas, basta
+  con cerrar el issue.
+
+Lo hace la GitHub Action `.github/workflows/palabras.yml` con
+`tools/add-words.mjs`: descarta repetidas, valida y sube la versión de la caché.
+Las palabras sin pistas solo salen cuando se juega sin «Pista para el impostor».
+
+---
+
 ## 🚀 Publicar en GitHub Pages
 
 El proyecto es HTML/CSS/JS puro: no necesita compilar. Basta con subirlo a un

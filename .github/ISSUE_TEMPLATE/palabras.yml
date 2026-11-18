@@ -1,0 +1,63 @@
+name: 💡 Sugerir palabras
+description: Propón palabras nuevas para El Impostor.
+title: "Palabras nuevas"
+labels: ["palabras"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ¡Gracias por sugerir! Las palabras se añaden al juego en cuanto el dueño del repositorio las aprueba.
+  - type: dropdown
+    id: categoria
+    attributes:
+      label: Categoría
+      options:
+        - "Comida y bebida"
+        - "Frutas y verduras"
+        - "Animales"
+        - "Animales marinos"
+        - "Naturaleza"
+        - "Lugares y viajes"
+        - "Países y ciudades"
+        - "Cine y series"
+        - "Programas y televisión"
+        - "Música"
+        - "Deportes"
+        - "Profesiones"
+        - "Tecnología"
+        - "Videojuegos"
+        - "Objetos cotidianos"
+        - "Casa y muebles"
+        - "Ropa y moda"
+        - "Cuerpo y salud"
+        - "Escuela y estudios"
+        - "Fiestas y tradiciones"
+        - "Marcas y empresas"
+        - "Vehículos"
+        - "Emociones y sentimientos"
+        - "Fantasía y mitología"
+        - "Conceptos y palabras difíciles"
+        - "Arte y cultura"
+        - "Random"
+    validations:
+      required: true
+  - type: textarea
+    id: palabras
+    attributes:
+      label: Palabras
+      description: Separadas por comas o una por línea.
+      placeholder: Pádel, Petanca, Curling
+    validations:
+      required: true
+  - type: textarea
+    id: pistas
+    attributes:
+      label: Pistas (opcional)
+      description: |
+        Para el modo «Pista para el impostor». Una palabra por línea, con sus pistas detrás de dos puntos.
+        Las palabras sin pistas solo salen cuando se juega sin pista.
+      placeholder: |
+        Pádel: Pala, Pareja, Cristal
+        Petanca: Bolas, Jubilados, Arena
+    validations:
+      required: false
