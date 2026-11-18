@@ -486,7 +486,8 @@ window.IMPOSTOR_DATA = {
       "Oppenheimer", "Cassette", "Walkman", "Nokia", "Floppy", "Tablet",
       "Kindle", "Ornitorrinco",
       "Mariana", "Javi", "Porras", "Khaoula", "Miguel", "Samuel", "Alberto", "Rubén",
-      "Clítoris"
+      "Clítoris",
+      "Gusanitos"
     ]}
   ]
 };
