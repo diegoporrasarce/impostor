@@ -484,7 +484,9 @@ window.IMPOSTOR_DATA = {
       "Nadal", "Alcaraz", "Fernando Alonso", "Marc Márquez", "LeBron",
       "Beyoncé", "DiCaprio", "Pikachu", "Goku", "Barbie",
       "Oppenheimer", "Cassette", "Walkman", "Nokia", "Floppy", "Tablet",
-      "Kindle", "Ornitorrinco"
+      "Kindle", "Ornitorrinco",
+      "Mariana", "Javi", "Porras", "Khaoula", "Miguel", "Samuel", "Alberto", "Rubén",
+      "Clítoris"
     ]}
   ]
 };
