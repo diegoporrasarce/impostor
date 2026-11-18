@@ -487,7 +487,8 @@ window.IMPOSTOR_DATA = {
       "Kindle", "Ornitorrinco",
       "Mariana", "Javi", "Porras", "Khaoula", "Miguel", "Samuel", "Alberto", "Rubén",
       "Clítoris",
-      "Gusanitos"
+      "Gusanitos",
+      "Cámara de gas"
     ]}
   ]
 };
