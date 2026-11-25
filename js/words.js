@@ -489,7 +489,8 @@ window.IMPOSTOR_DATA = {
       "Clítoris",
       "Gusanitos",
       "Cámara de gas",
-      "Jesús"
+      "Jesús",
+      "Correa"
     ]}
   ]
 };
