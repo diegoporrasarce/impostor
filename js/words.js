@@ -488,7 +488,8 @@ window.IMPOSTOR_DATA = {
       "Mariana", "Javi", "Porras", "Khaoula", "Miguel", "Samuel", "Alberto", "Rubén",
       "Clítoris",
       "Gusanitos",
-      "Cámara de gas"
+      "Cámara de gas",
+      "Jesús"
     ]}
   ]
 };
